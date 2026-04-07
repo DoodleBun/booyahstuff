@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Booyah! TCG</title>
+<link href="https://fonts.cdnfonts.com/css/zero-cool" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: transparent;
+    font-family: 'Nunito', sans-serif;
+    overflow-x: hidden;
+  }
+
+  :root {
+    --card-back-url: url('https://github.com/DoodleBun/booyahstuff/raw/main/BACK.jpg');
+  }
+
+  /* ─── HERO SECTION ─── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 44px 20px 60px;
+    position: relative;
+  }
+
+  .hero-logo {
+    max-width: min(480px, 84vw);
+    height: auto;
+    margin-top: 0;
+    margin-bottom: 2px;
+    animation: titleBounce 0.8s cubic-bezier(0.34,1.56,0.64,1) both;
+    filter: drop-shadow(0 4px 24px rgba(0,0,0,0.4));
+  }
+
+  .hero-logo-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+  }
+
+  .hero-subtitle {
+    margin-top: 8px;
+    margin-bottom: 14px;
+    font-family: 'Zero Cool', sans-serif;
+    font-size: clamp(1.4rem, 3vw, 2.35rem);
+    letter-spacing: 0.06em;
+    text-transform: none;
+    color: #94c7e2;
+    text-shadow:
+      0 1px 0 #5e89b0,
+      0 2px 0 #486893,
+      0 3px 0 #2a336c,
+      0 10px 22px rgba(42, 51, 108, 0.18);
+    text-align: center;
+  }
+
+  .hero-tagline {
+    margin-top: 10px;
+    margin-bottom: 16px;
+    font-size: clamp(0.98rem, 1.5vw, 1.1rem);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(42, 51, 108, 0.82);
+    font-family: 'Nunito', sans-serif;
+  }
+
+  @keyframes titleBounce {
+    from { opacity: 0; transform: scale(0.5) translateY(-30px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── CARD FAN STAGE ─── */
+  .stage-shell {
+    position: relative;
+    width: 100%;
+    max-width: 1280px;
+    height: 360px;
+    margin-top: -12px;
+    margin-bottom: 18px;
+    perspective: 1600px;
+    animation: fadeUp 0.8s 0.5s both;
+  }
+
+  .stage {
+    position: relative;
+    width: 100%;
+    height: 360px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-inline: clamp(36px, 6vw, 96px);
+    margin: 0;
+    overflow: visible;
+    isolation: isolate;
+    --fan-outer: 366px;
+    --fan-inner: 183px;
+    --fan-center-y: -22px;
+    --fan-inner-y: -28px;
+    --fan-outer-y: -34px;
+  }
+
+  .card-wrap {
+    position: absolute;
+    bottom: 0;
+    width: 178px;
+    height: 251px;
+    transform-origin: center bottom;
+    cursor: pointer;
+    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), filter 0.25s;
+  }
+
+  /* Fan positions: 5 cards — wide spread so the full artwork stays visible */
+  .card-wrap:nth-child(1) { transform: rotate(-4deg) translateX(calc(var(--fan-outer) * -1)) translateY(var(--fan-outer-y)); }
+  .card-wrap:nth-child(2) { transform: rotate(-2deg) translateX(calc(var(--fan-inner) * -1)) translateY(var(--fan-inner-y)); }
+  .card-wrap:nth-child(3) { transform: rotate(0deg)   translateX(0px) translateY(var(--fan-center-y)); }
+  .card-wrap:nth-child(4) { transform: rotate(2deg)  translateX(var(--fan-inner)) translateY(var(--fan-inner-y)); }
+  .card-wrap:nth-child(5) { transform: rotate(4deg)  translateX(var(--fan-outer)) translateY(var(--fan-outer-y)); }
+
+  /* Hover: keep cards interactive before and after reveal */
+  .card-wrap:hover:not(.flipping) {
+    transform: rotate(var(--rot)) translateX(var(--tx)) translateY(calc(var(--ty) - 18px)) scale(1.04);
+    filter: drop-shadow(0 14px 20px rgba(0,0,0,0.18));
+    z-index: 10;
+  }
+
+  .card-wrap:nth-child(1) { --rot: -4deg; --tx: calc(var(--fan-outer) * -1); --ty: var(--fan-outer-y); }
+  .card-wrap:nth-child(2) { --rot: -2deg; --tx: calc(var(--fan-inner) * -1); --ty: var(--fan-inner-y); }
+  .card-wrap:nth-child(3) { --rot: 0deg;   --tx: 0px; --ty: var(--fan-center-y); }
+  .card-wrap:nth-child(4) { --rot: 2deg;  --tx: var(--fan-inner); --ty: var(--fan-inner-y); }
+  .card-wrap:nth-child(5) { --rot: 4deg;  --tx: var(--fan-outer); --ty: var(--fan-outer-y); }
+
+  .card-wrap.flipped:hover {
+    z-index: 25;
+  }
+
+  @media (max-width: 900px) {
+    .stage {
+      height: 320px;
+      padding-inline: clamp(20px, 4vw, 48px);
+      --fan-outer: 240px;
+      --fan-inner: 120px;
+      --fan-center-y: -18px;
+      --fan-inner-y: -22px;
+      --fan-outer-y: -26px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .stage {
+      height: 260px;
+      padding-inline: 12px;
+      --fan-outer: 124px;
+      --fan-inner: 62px;
+      --fan-center-y: -16px;
+      --fan-inner-y: -18px;
+      --fan-outer-y: -20px;
+    }
+
+    .card-wrap {
+      width: 136px;
+      height: 192px;
+    }
+  }
+
+  /* 3D flip container */
+  .card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.4,0,0.2,1);
+    border-radius: 10px;
+  }
+
+  .card-wrap.flipped .card-inner {
+    transform: rotateY(180deg);
+  }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    backface-visibility: hidden;
+    overflow: hidden;
+    box-shadow: none;
+  }
+
+  .card-back {
+    background: transparent center / cover no-repeat;
+    background-image: var(--card-back-url);
+  }
+  .card-back img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    display: block;
+    box-shadow: none;
+    transform: scale(1.08);
+    transform-origin: center;
+  }
+
+  .card-front {
+    transform: rotateY(180deg);
+    background: transparent;
+  }
+  .card-front::after {
+    content: '';
+    position: absolute;
+    inset: -20%;
+    background:
+      linear-gradient(
+        115deg,
+        transparent 22%,
+        rgba(255,255,255,0.05) 36%,
+        rgba(255,255,255,0.7) 48%,
+        rgba(153,240,255,0.35) 54%,
+        rgba(255,182,193,0.28) 60%,
+        transparent 72%
+      );
+    opacity: 0;
+    transform: translateX(-90%) rotate(8deg);
+    transition: opacity 0.22s ease, transform 0.6s ease;
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+  .card-front img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    display: block;
+    box-shadow: none;
+    transform: scale(1.08);
+    transform-origin: center;
+  }
+
+  .card-wrap.flipped:hover .card-face.card-front {
+    box-shadow:
+      0 10px 18px rgba(0,0,0,0.14),
+      0 0 18px rgba(120,220,255,0.18);
+  }
+
+  .card-wrap.flipped:hover .card-front::after {
+    opacity: 1;
+    transform: translateX(88%) rotate(8deg);
+  }
+
+  /* Gold glow for 3-star cards */
+  .card-wrap.three-star .card-face.card-front {
+    box-shadow:
+      0 0 18px 4px rgba(255,215,0,0.55),
+      0 0 36px 8px rgba(255,165,0,0.22);
+  }
+  .card-wrap.three-star.flipped {
+    z-index: 20 !important;
+  }
+
+  /* Space float animation */
+  .card-wrap { animation: float var(--fd, 6.8s) ease-in-out infinite alternate; }
+  .card-wrap:nth-child(1) { --fd: 7.1s; animation-delay: -0.4s; }
+  .card-wrap:nth-child(2) { --fd: 6.6s; animation-delay: -2.1s; }
+  .card-wrap:nth-child(3) { --fd: 7.4s; animation-delay: -1.3s; }
+  .card-wrap:nth-child(4) { --fd: 6.9s; animation-delay: -2.8s; }
+  .card-wrap:nth-child(5) { --fd: 7.2s; animation-delay: -0.9s; }
+
+  @keyframes float {
+    from { margin-bottom: 0; }
+    to   { margin-bottom: 18px; }
+  }
+
+  .card-wrap.flipped {
+    z-index: 15;
+  }
+
+  .hero.menu-mode .card-wrap {
+    opacity: 0;
+    pointer-events: none;
+    filter: blur(2px);
+    transition: opacity 0.35s ease, filter 0.35s ease;
+  }
+
+  .hero.menu-mode .card-wrap .card-inner {
+    transform: rotateY(180deg) scale(0.92);
+  }
+
+  .stage-menu {
+    position: absolute;
+    inset: 0;
+    display: block;
+    padding: 0;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(14px);
+    transition: opacity 0.28s ease, transform 0.28s ease;
+    z-index: 30;
+  }
+
+  .hero.menu-mode .stage-menu {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .stage-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: calc(50% - 89px);
+    bottom: 0;
+    width: 178px;
+    height: 251px;
+    padding: 0;
+    border-radius: 10px;
+    color: transparent;
+    text-decoration: none;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
+    transform-origin: center bottom;
+    overflow: hidden;
+    animation: float var(--fd, 6.8s) ease-in-out infinite alternate;
+  }
+
+  .stage-link:hover,
+  .stage-link:focus-visible {
+    transform: rotate(var(--rot)) translateX(var(--tx)) translateY(calc(var(--ty) - 18px)) scale(1.04);
+    filter: brightness(1.04) drop-shadow(0 14px 20px rgba(0,0,0,0.18));
+    outline: none;
+    z-index: 12;
+  }
+
+  .stage-link img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 10px;
+    box-shadow: none;
+    transform: scale(1.08);
+    transform-origin: center;
+  }
+
+  .stage-link::after {
+    content: '';
+    position: absolute;
+    inset: -20%;
+    background:
+      linear-gradient(
+        115deg,
+        transparent 22%,
+        rgba(255,255,255,0.05) 36%,
+        rgba(255,255,255,0.7) 48%,
+        rgba(153,240,255,0.35) 54%,
+        rgba(255,182,193,0.28) 60%,
+        transparent 72%
+      );
+    opacity: 0;
+    transform: translateX(-90%) rotate(8deg);
+    transition: opacity 0.22s ease, transform 0.6s ease;
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+
+  .stage-link:hover::after,
+  .stage-link:focus-visible::after {
+    opacity: 1;
+    transform: translateX(88%) rotate(8deg);
+  }
+
+  .stage-link:nth-child(1) { transform: rotate(-4deg) translateX(-366px) translateY(-34px); --rot: -4deg; --tx: -366px; --ty: -34px; --fd: 7.1s; animation-delay: -0.4s; }
+  .stage-link:nth-child(2) { transform: rotate(-2deg) translateX(-183px) translateY(-28px); --rot: -2deg; --tx: -183px; --ty: -28px; --fd: 6.6s; animation-delay: -2.1s; }
+  .stage-link:nth-child(3) { transform: rotate(0deg) translateX(0px) translateY(-22px); --rot: 0deg; --tx: 0px; --ty: -22px; --fd: 7.4s; animation-delay: -1.3s; }
+  .stage-link:nth-child(4) { transform: rotate(2deg) translateX(183px) translateY(-28px); --rot: 2deg; --tx: 183px; --ty: -28px; --fd: 6.9s; animation-delay: -2.8s; }
+  .stage-link:nth-child(5) { transform: rotate(4deg) translateX(366px) translateY(-34px); --rot: 4deg; --tx: 366px; --ty: -34px; --fd: 7.2s; animation-delay: -0.9s; }
+
+  /* ─── NAV BUTTONS ─── */
+  .explore-nav {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    margin: 8px 0 0;
+    animation: fadeUp 0.8s 0.9s both;
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-width: 188px;
+    padding: 14px 28px;
+    border-radius: 999px;
+    font-family: 'Baloo 2', cursive;
+    font-weight: 800;
+    font-size: 1.15rem;
+    letter-spacing: 0.02em;
+    color: #fff;
+    background: #e0a100;
+    border: 1px solid #c78e00;
+    box-shadow:
+      inset 0 1px 0 rgba(255,231,145,0.45),
+      0 8px 16px rgba(140,86,0,0.16),
+      0 4px 0 #aa7700;
+    text-shadow: 0 1px 1px rgba(112,74,0,0.35);
+    transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
+    white-space: nowrap;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .hero-cta:hover,
+  .hero-cta:focus-visible {
+    transform: translateY(-2px);
+    box-shadow:
+      inset 0 1px 0 rgba(255,231,145,0.5),
+      0 12px 20px rgba(140,86,0,0.2),
+      0 5px 0 #aa7700;
+    filter: brightness(1.03);
+    outline: none;
+  }
+  .hero-cta:active,
+  .hero.menu-mode .hero-cta.explore-btn {
+    transform: translateY(3px);
+    box-shadow:
+      inset 0 1px 0 rgba(255,231,145,0.42),
+      0 6px 12px rgba(140,86,0,0.16),
+      0 1px 0 #aa7700;
+  }
+
+  .sticky-cta {
+    position: fixed;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    width: min(760px, calc(100% - 24px));
+    padding: 14px 18px;
+    border-radius: 999px;
+    background: rgba(42, 51, 108, 0.94);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    box-shadow: 0 18px 38px rgba(42, 51, 108, 0.22);
+    z-index: 80;
+    backdrop-filter: blur(10px);
+  }
+
+  .sticky-cta-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .sticky-cta-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.1rem;
+    font-weight: 800;
+    line-height: 1;
+    color: #ffffff;
+  }
+
+  .sticky-cta-note {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.75);
+  }
+
+  .sticky-cta-btn {
+    flex-shrink: 0;
+  }
+
+  .stats-strip{
+    display:flex;
+    gap:0;
+    width:min(760px, calc(100% - 24px));
+    margin:18px auto 34px;
+    border-radius:14px;
+    overflow:hidden;
+    border:1px solid rgba(100,80,180,0.2);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:rgba(255,255,255,0.04);
+  }
+  .stat-block{
+    flex:1;
+    padding:28px 12px 24px;
+    text-align:center;
+    position:relative;
+  }
+  .stat-block+.stat-block::before{
+    content:'';
+    position:absolute;
+    left:0;
+    top:18%;
+    height:64%;
+    width:1px;
+    background:rgba(255,255,255,0.08);
+  }
+  .stat-number{
+    font-size:46px;
+    font-weight:700;
+    color:#f5a623;
+    line-height:1;
+    margin-bottom:8px;
+    letter-spacing:-1px;
+  }
+  .stat-number sup{
+    font-size:15px;
+    font-weight:500;
+    vertical-align:super;
+    letter-spacing:0;
+  }
+  .stat-label{
+    font-size:12px;
+    color:rgba(255,255,255,0.42);
+    line-height:1.3;
+  }
+  .stat-sublabel{
+    font-size:10px;
+    color:rgba(255,255,255,0.2);
+    margin-top:2px;
+  }
+
+  .artist-marquee{
+    width:min(1220px, calc(100% - 24px));
+    margin:0 auto 120px;
+    padding:14px 0;
+    border-radius:16px;
+    overflow:hidden;
+    border:1px solid rgba(42, 51, 108, 0.12);
+    background:rgba(42, 51, 108, 0.05);
+    backdrop-filter: blur(8px);
+  }
+  .artist-marquee-track{
+    display:flex;
+    width:max-content;
+    animation: marqueeScroll 28s linear infinite;
+  }
+  .artist-marquee:hover .artist-marquee-track{
+    animation-play-state: paused;
+  }
+  .artist-chip{
+    flex:0 0 auto;
+    margin:0 10px;
+    padding:10px 16px;
+    border-radius:999px;
+    background:rgba(255,255,255,0.68);
+    border:1px solid rgba(148,199,226,0.35);
+    color:#2a336c;
+    font-size:0.92rem;
+    font-weight:800;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    white-space:nowrap;
+  }
+  @keyframes marqueeScroll{
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  .site-sections {
+    width: min(1220px, calc(100% - 24px));
+    margin: 0 auto 160px;
+    display: grid;
+    gap: 22px;
+  }
+
+  .content-section {
+    position: relative;
+    padding: 28px;
+    border-radius: 28px;
+    overflow: hidden;
+    border: 1px solid rgba(42, 51, 108, 0.12);
+    background:
+      radial-gradient(circle at top left, rgba(148, 199, 226, 0.2), transparent 42%),
+      linear-gradient(180deg, rgba(255,255,255,0.82), rgba(255,255,255,0.7));
+    box-shadow: 0 24px 60px rgba(42, 51, 108, 0.08);
+    backdrop-filter: blur(12px);
+    scroll-margin-top: 28px;
+  }
+
+  .content-section::before {
+    content: '';
+    position: absolute;
+    inset: auto -12% -55% auto;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(245,166,35,0.16), transparent 68%);
+    pointer-events: none;
+  }
+
+  .section-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: rgba(42, 51, 108, 0.08);
+    color: #2a336c;
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .section-title {
+    margin-bottom: 10px;
+    font-family: 'Baloo 2', cursive;
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 800;
+    line-height: 0.95;
+    color: #2a336c;
+  }
+
+  .section-copy {
+    max-width: 72ch;
+    color: rgba(42, 51, 108, 0.86);
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .section-copy + .section-copy {
+    margin-top: 10px;
+  }
+
+  .info-grid,
+  .rules-grid,
+  .card-grid,
+  .social-grid,
+  .join-grid {
+    display: grid;
+    gap: 16px;
+    margin-top: 22px;
+  }
+
+  .info-grid,
+  .card-grid,
+  .social-grid,
+  .join-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .rules-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .content-card,
+  .rule-card,
+  .social-card,
+  .join-card {
+    padding: 18px;
+    border-radius: 20px;
+    border: 1px solid rgba(42, 51, 108, 0.1);
+    background: rgba(255,255,255,0.74);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
+  }
+
+  .content-card h3,
+  .rule-card h3,
+  .social-card h3,
+  .join-card h3 {
+    margin-bottom: 8px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.3rem;
+    line-height: 1;
+    color: #2a336c;
+  }
+
+  .content-card p,
+  .rule-card p,
+  .social-card p,
+  .join-card p {
+    color: rgba(42, 51, 108, 0.8);
+    line-height: 1.65;
+    font-size: 0.98rem;
+  }
+
+  .rules-grid {
+    counter-reset: ruleSteps;
+  }
+
+  .rule-card {
+    position: relative;
+    padding-top: 48px;
+  }
+
+  .rule-card::before {
+    counter-increment: ruleSteps;
+    content: counter(ruleSteps, decimal-leading-zero);
+    position: absolute;
+    top: 16px;
+    left: 18px;
+    font-size: 0.86rem;
+    font-weight: 900;
+    letter-spacing: 0.16em;
+    color: #f5a623;
+  }
+
+  .artist-showcase {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr);
+    gap: 18px;
+    margin-top: 22px;
+  }
+
+  .artist-wall {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .artist-tile {
+    padding: 18px 16px;
+    border-radius: 22px;
+    background:
+      linear-gradient(135deg, rgba(148,199,226,0.2), rgba(255,255,255,0.8)),
+      rgba(255,255,255,0.7);
+    border: 1px solid rgba(42, 51, 108, 0.1);
+    min-height: 118px;
+  }
+
+  .artist-tile strong {
+    display: block;
+    margin-bottom: 6px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.2rem;
+    color: #2a336c;
+  }
+
+  .artist-tile span {
+    display: block;
+    color: rgba(42, 51, 108, 0.7);
+    line-height: 1.55;
+    font-size: 0.94rem;
+  }
+
+  .artist-side {
+    display: grid;
+    gap: 14px;
+  }
+
+  .side-panel {
+    padding: 20px;
+    border-radius: 24px;
+    background: rgba(42, 51, 108, 0.88);
+    color: #fff;
+    box-shadow: 0 18px 36px rgba(42, 51, 108, 0.18);
+  }
+
+  .side-panel h3 {
+    margin-bottom: 8px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.35rem;
+    line-height: 1;
+  }
+
+  .side-panel p {
+    color: rgba(255,255,255,0.8);
+    line-height: 1.65;
+  }
+
+  .chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .mini-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .card-grid {
+    align-items: stretch;
+  }
+
+  .content-card.highlight {
+    background: linear-gradient(180deg, rgba(42,51,108,0.94), rgba(54, 66, 138, 0.92));
+    color: #fff;
+    box-shadow: 0 18px 40px rgba(42, 51, 108, 0.18);
+  }
+
+  .content-card.highlight h3,
+  .content-card.highlight p,
+  .content-card.highlight li {
+    color: #fff;
+  }
+
+  .bullet-list {
+    display: grid;
+    gap: 10px;
+    margin-top: 12px;
+    padding-left: 18px;
+    color: rgba(42, 51, 108, 0.82);
+    line-height: 1.6;
+  }
+
+  .content-card.highlight .bullet-list {
+    color: rgba(255,255,255,0.88);
+  }
+
+  .social-card a,
+  .join-card a {
+    color: #2a336c;
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  .social-card a:hover,
+  .join-card a:hover {
+    text-decoration: underline;
+  }
+
+  .section-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 22px;
+  }
+
+  .section-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 180px;
+    padding: 13px 22px;
+    border-radius: 999px;
+    background: rgba(42, 51, 108, 0.08);
+    border: 1px solid rgba(42, 51, 108, 0.12);
+    color: #2a336c;
+    text-decoration: none;
+    font-weight: 800;
+    transition: transform 0.16s ease, background 0.16s ease;
+  }
+
+  .section-link:hover,
+  .section-link:focus-visible {
+    transform: translateY(-2px);
+    background: rgba(148, 199, 226, 0.18);
+    outline: none;
+  }
+
+  @media (max-width: 900px) {
+    .stats-strip {
+      margin-inline: 12px;
+    }
+
+    .artist-marquee {
+      margin-inline: 12px;
+    }
+
+    .site-sections {
+      margin-inline: 12px;
+    }
+
+    .info-grid,
+    .rules-grid,
+    .card-grid,
+    .social-grid,
+    .join-grid,
+    .artist-showcase,
+    .artist-wall {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .explore-nav {
+      flex-wrap: wrap;
+    }
+
+    .stage-link {
+      width: 136px;
+      height: 192px;
+      left: calc(50% - 68px);
+    }
+
+    .stage-link:nth-child(1) { transform: rotate(-4deg) translateX(-124px) translateY(-20px); --tx: -124px; --ty: -20px; }
+    .stage-link:nth-child(2) { transform: rotate(-2deg) translateX(-62px) translateY(-18px); --tx: -62px; --ty: -18px; }
+    .stage-link:nth-child(3) { transform: rotate(0deg) translateX(0px) translateY(-16px); --tx: 0px; --ty: -16px; }
+    .stage-link:nth-child(4) { transform: rotate(2deg) translateX(62px) translateY(-18px); --tx: 62px; --ty: -18px; }
+    .stage-link:nth-child(5) { transform: rotate(4deg) translateX(124px) translateY(-20px); --tx: 124px; --ty: -20px; }
+
+    .sticky-cta {
+      align-items: stretch;
+      border-radius: 26px;
+      flex-direction: column;
+    }
+
+    .sticky-cta-btn {
+      width: 100%;
+    }
+
+    .stats-strip {
+      flex-direction: column;
+    }
+
+    .stat-block+.stat-block::before{
+      left:18%;
+      top:0;
+      width:64%;
+      height:1px;
+    }
+
+    .artist-marquee{
+      margin-bottom:140px;
+    }
+
+    .site-sections {
+      margin-bottom: 180px;
+    }
+
+    .content-section {
+      padding: 22px 18px;
+      border-radius: 24px;
+    }
+
+    .info-grid,
+    .rules-grid,
+    .card-grid,
+    .social-grid,
+    .join-grid,
+    .artist-showcase,
+    .artist-wall {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ─── STAR REVEAL POPUP ─── */
+  .star-pop {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    font-family: 'Baloo 2', cursive;
+    font-size: 2.5rem;
+    color: #ffd700;
+    text-shadow: 0 0 20px rgba(255,215,0,0.9);
+    pointer-events: none;
+    z-index: 999;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.5s 0.8s;
+    opacity: 1;
+  }
+  .star-pop.show {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  .star-pop.hide {
+    opacity: 0;
+    transform: translate(-50%, -60%) scale(0.8);
+  }
+
+  /* Particles */
+  .particle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 998;
+    font-size: 1.2rem;
+    animation: particleFly 1s ease-out forwards;
+  }
+  @keyframes particleFly {
+    from { opacity: 1; transform: translate(0,0) scale(1); }
+    to   { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.3); }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-subtitle">The Trading Card Game For Artists</div>
+  <a class="hero-logo-link" href="https://booyahtcg.com/#social" aria-label="Go to Booyah! TCG socials">
+    <img class="hero-logo" src="https://github.com/DoodleBun/booyahstuff/raw/main/l.png" alt="Booyah! TCG">
+  </a>
+  <div class="hero-tagline">Share - Play - Trade - Have Fun</div>
+
+  <div class="stage-shell">
+    <div class="stage" id="stage"></div>
+    <div class="stage-menu" id="stageMenu">
+      <a class="stage-link" href="https://booyahtcg.com/#about" aria-label="Info">
+        <img src="https://github.com/DoodleBun/booyahstuff/raw/main/b_ab.jpg.png" alt="Info card" loading="lazy" referrerpolicy="no-referrer">
+      </a>
+      <a class="stage-link" href="https://booyahtcg.com/#rules" aria-label="Rules">
+        <img src="https://github.com/DoodleBun/booyahstuff/raw/main/b_r.png" alt="Rules card" loading="lazy" referrerpolicy="no-referrer">
+      </a>
+      <a class="stage-link" href="https://booyahtcg.com/#artists" aria-label="Artists">
+        <img src="https://github.com/DoodleBun/booyahstuff/raw/main/b_a.png" alt="Artists card" loading="lazy" referrerpolicy="no-referrer">
+      </a>
+      <a class="stage-link" href="https://booyahtcg.com/#cardlist" aria-label="Card list">
+        <img src="https://github.com/DoodleBun/booyahstuff/raw/main/b_c.png" alt="Card list card" loading="lazy" referrerpolicy="no-referrer">
+      </a>
+      <a class="stage-link" href="https://booyahtcg.com/#social" aria-label="Socials">
+        <img src="https://github.com/DoodleBun/booyahstuff/raw/main/b_s.png" alt="Socials card" loading="lazy" referrerpolicy="no-referrer">
+      </a>
+    </div>
+  </div>
+
+  <nav class="explore-nav" id="exploreNav">
+    <button class="hero-cta explore-btn" id="exploreBtn" type="button" aria-expanded="false" aria-controls="stageMenu">
+      Explore
+    </button>
+  </nav>
+</div>
+
+<section class="stats-strip">
+  <article class="stat-block">
+    <div class="stat-number" data-count-to="14">0</div>
+    <div class="stat-label">Artists Worldwide</div>
+    <div class="stat-sublabel">Live community count</div>
+  </article>
+  <article class="stat-block">
+    <div class="stat-number" data-count-to="162">0</div>
+    <div class="stat-label">Unique Cards</div>
+    <div class="stat-sublabel">Current card pool</div>
+  </article>
+</section>
+
+<section class="artist-marquee" aria-label="Featured artists">
+  <div class="artist-marquee-track">
+    <span class="artist-chip">Aperture Plushies</span>
+    <span class="artist-chip">Beeps Creatures</span>
+    <span class="artist-chip">CORKiE</span>
+    <span class="artist-chip">DapperTetu</span>
+    <span class="artist-chip">DoodleBun</span>
+    <span class="artist-chip">Feral Foliage</span>
+    <span class="artist-chip">Igor1908</span>
+    <span class="artist-chip">Kaladania</span>
+    <span class="artist-chip">Kirava1</span>
+    <span class="artist-chip">LewdSideQuest</span>
+    <span class="artist-chip">M.McRobo</span>
+    <span class="artist-chip">Valkyrie Art</span>
+    <span class="artist-chip">Zenelionn</span>
+    <span class="artist-chip">Aperture Plushies</span>
+    <span class="artist-chip">Beeps Creatures</span>
+    <span class="artist-chip">CORKiE</span>
+    <span class="artist-chip">DapperTetu</span>
+    <span class="artist-chip">DoodleBun</span>
+    <span class="artist-chip">Feral Foliage</span>
+    <span class="artist-chip">Igor1908</span>
+    <span class="artist-chip">Kaladania</span>
+    <span class="artist-chip">Kirava1</span>
+    <span class="artist-chip">LewdSideQuest</span>
+    <span class="artist-chip">M.McRobo</span>
+    <span class="artist-chip">Valkyrie Art</span>
+    <span class="artist-chip">Zenelionn</span>
+  </div>
+</section>
+
+<div class="sticky-cta">
+  <div class="sticky-cta-copy">
+    <span class="sticky-cta-title">Ready to join? It's free!</span>
+    <span class="sticky-cta-note">Jump in, and become part of the Booyah artist community.</span>
+  </div>
+  <a class="hero-cta sticky-cta-btn" href="#join">Join the game</a>
+</div>
+
+<!-- Star reveal popup -->
+<div class="star-pop" id="starPop"></div>
+
+<script>
+const BACK_URL = 'https://github.com/DoodleBun/booyahstuff/raw/main/BACK.jpg';
+const RAW = 'https://raw.githubusercontent.com/DoodleBun/wafrcardbooyahtcgpreview/main/';
+const hero = document.querySelector('.hero');
+const exploreNav = document.getElementById('exploreNav');
+const exploreBtn = document.getElementById('exploreBtn');
+
+function animateCount(el, target, duration = 1400) {
+  const start = performance.now();
+
+  function step(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(target * eased).toLocaleString('en-GB');
+    if (progress < 1) requestAnimationFrame(step);
+  }
+
+  requestAnimationFrame(step);
+}
+
+const statNumbers = [...document.querySelectorAll('[data-count-to]')];
+const seenCounters = new WeakSet();
+
+if ('IntersectionObserver' in window) {
+  const statsObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach((entry, index) => {
+      if (!entry.isIntersecting || seenCounters.has(entry.target)) return;
+      seenCounters.add(entry.target);
+      const target = Number(entry.target.getAttribute('data-count-to'));
+      setTimeout(() => animateCount(entry.target, target), index * 160);
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: 0.45 });
+
+  statNumbers.forEach((el) => statsObserver.observe(el));
+} else {
+  statNumbers.forEach((el, index) => {
+    const target = Number(el.getAttribute('data-count-to'));
+    setTimeout(() => animateCount(el, target), index * 160);
+  });
+}
+
+function setExploreOpen(isOpen) {
+  hero.classList.toggle('menu-mode', isOpen);
+  exploreBtn.setAttribute('aria-expanded', String(isOpen));
+}
+
+exploreBtn.addEventListener('click', () => {
+  setExploreOpen(!hero.classList.contains('menu-mode'));
+});
+
+document.addEventListener('click', (event) => {
+  if (!exploreNav.contains(event.target) && !event.target.closest('.stage-menu')) {
+    setExploreOpen(false);
+  }
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') setExploreOpen(false);
+});
+
+document.querySelectorAll('.stage-link').forEach((link) => {
+  link.addEventListener('click', () => setExploreOpen(false));
+});
+
+// All cards from the repo, tagged with star rating
+// 3-star cards are the highest-numbered in each pack (rarest, 4 max per deck)
+// Based on standard TCG convention: last 1-2 cards in a pack tend to be the rarest
+// Pack sizes vary: ap=18, be=10, co=10, do=18, do2=18, fe=5, fe2=10, fe3=10
+// We designate card number 8+ in 10-packs and 16+ in 18-packs as potential 3-stars
+const ALL_CARDS = [
+  // Aperture Plushies (ap) - 18 cards, 3-stars: ap_17, ap_18
+  ...Array.from({length:16}, (_,i) => ({ file: `ap_${String(i+1).padStart(2,'0')}.png`, stars: i<16?1:3 })),
+  { file: 'ap_17.png', stars: 3 },
+  { file: 'ap_18.png', stars: 3 },
+  // Beeps Creatures (be) - 10 cards, 3-star: be_10
+  ...Array.from({length:9}, (_,i) => ({ file: `be_${String(i+1).padStart(2,'0')}.png`, stars: 1 })),
+  { file: 'be_10.png', stars: 3 },
+  // CORKiE (co) - 10 cards, 3-star: co_10
+  ...Array.from({length:9}, (_,i) => ({ file: `co_${String(i+1).padStart(2,'0')}.png`, stars: 1 })),
+  { file: 'co_10.png', stars: 3 },
+  // DoodleBun (do) - 18 cards, 3-stars: do_17, do_18
+  ...Array.from({length:16}, (_,i) => ({ file: `do_${String(i+1).padStart(2,'0')}.png`, stars: 1 })),
+  { file: 'do_17.png', stars: 3 },
+  { file: 'do_18.png', stars: 3 },
+  // DoodleBun 2 (do2) - 18 cards, 3-stars: do2_17, do2_18
+  ...Array.from({length:16}, (_,i) => ({ file: `do2_${String(i+1).padStart(2,'0')}.png`, stars: 1 })),
+  { file: 'do2_17.png', stars: 3 },
+  { file: 'do2_18.png', stars: 3 },
+  // Feral Foliage (fe) - 5 cards
+  ...Array.from({length:5}, (_,i) => ({ file: `fe_${String(i+1).padStart(2,'0')}.png`, stars: 1 })),
+  // Feral Foliage 2 (fe2) - 10 cards, 3-star: fe2_10
+  ...Array.from({length:9}, (_,i) => ({ file: `fe2_${String(i+1).padStart(2,'0')}.png`, stars: 1 })),
+  { file: 'fe2_10.png', stars: 3 },
+  // Feral Foliage 3 (fe3) - 10 cards, 3-star: fe3_10
+  ...Array.from({length:9}, (_,i) => ({ file: `fe3_${String(i+1).padStart(2,'0')}.png`, stars: 1 })),
+  { file: 'fe3_10.png', stars: 3 },
+];
+
+// Deduplicate (the array.from + manual pushes cause dupes for 17/18)
+const seen = new Set();
+const CARDS = ALL_CARDS.filter(c => {
+  if (seen.has(c.file)) return false;
+  seen.add(c.file);
+  return true;
+});
+
+// Pick 5 random cards
+function pickRandom(arr, n) {
+  const shuffled = [...arr].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, n);
+}
+
+const chosen = pickRandom(CARDS, 5);
+const stage = document.getElementById('stage');
+
+chosen.forEach((card, i) => {
+  const wrap = document.createElement('div');
+  wrap.className = 'card-wrap' + (card.stars === 3 ? ' three-star' : '');
+  wrap.setAttribute('role', 'button');
+  wrap.setAttribute('tabindex', '0');
+  wrap.setAttribute('aria-label', 'Reveal card');
+  wrap.innerHTML = `
+    <div class="card-inner">
+      <div class="card-face card-back">
+        <img src="${BACK_URL}" alt="Card back" loading="eager" referrerpolicy="no-referrer">
+      </div>
+      <div class="card-face card-front">
+        <img src="${RAW}${card.file}" alt="Booyah card" loading="lazy" referrerpolicy="no-referrer">
+      </div>
+    </div>
+  `;
+
+  let clicked = false;
+  const revealCard = () => {
+    if (clicked) return;
+    clicked = true;
+    wrap.classList.add('flipping');
+    setTimeout(() => {
+      wrap.classList.add('flipped');
+      wrap.classList.remove('flipping');
+
+      // Show 3-star burst
+      if (card.stars === 3) {
+        showStarBurst(wrap);
+      }
+    }, 50);
+  };
+
+  wrap.addEventListener('click', revealCard);
+  wrap.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      revealCard();
+    }
+  });
+
+  stage.appendChild(wrap);
+});
+
+function showStarBurst(cardEl) {
+  const pop = document.getElementById('starPop');
+  pop.textContent = '⭐⭐⭐ Wow! ⭐⭐⭐';
+  pop.className = 'star-pop show';
+  setTimeout(() => pop.classList.add('hide'), 900);
+  setTimeout(() => { pop.className = 'star-pop'; }, 1400);
+
+  // Spawn particles
+  const rect = cardEl.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  const emojis = ['✨','⭐','🌟','💫','✨','⭐'];
+  emojis.forEach((e, j) => {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.textContent = e;
+    const angle = (j / emojis.length) * Math.PI * 2;
+    const dist = 80 + Math.random() * 60;
+    p.style.left = cx + 'px';
+    p.style.top  = cy + 'px';
+    p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+    p.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 1000);
+  });
+}
+</script>
+</body>
+</html>
