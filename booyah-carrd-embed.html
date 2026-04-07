@@ -166,18 +166,31 @@
 
   @media (max-width: 640px) {
     .stage {
-      height: 260px;
-      padding-inline: 12px;
-      --fan-outer: 124px;
-      --fan-inner: 62px;
-      --fan-center-y: -16px;
-      --fan-inner-y: -18px;
-      --fan-outer-y: -20px;
+      height: 200px;
+      padding-inline: 8px;
+      --fan-outer: 96px;
+      --fan-inner: 48px;
+      --fan-center-y: -12px;
+      --fan-inner-y: -14px;
+      --fan-outer-y: -16px;
     }
 
     .card-wrap {
-      width: 136px;
-      height: 192px;
+      width: 96px;
+      height: 136px;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .stage {
+      height: 170px;
+      --fan-outer: 78px;
+      --fan-inner: 39px;
+    }
+
+    .card-wrap {
+      width: 80px;
+      height: 113px;
     }
   }
 
@@ -903,17 +916,47 @@
       flex-wrap: wrap;
     }
 
-    .stage-link {
-      width: 136px;
-      height: 192px;
-      left: calc(50% - 68px);
+    .hero {
+      padding: 24px 12px 32px;
+      min-height: auto;
     }
 
-    .stage-link:nth-child(1) { transform: rotate(-4deg) translateX(-124px) translateY(-20px); --tx: -124px; --ty: -20px; }
-    .stage-link:nth-child(2) { transform: rotate(-2deg) translateX(-62px) translateY(-18px); --tx: -62px; --ty: -18px; }
-    .stage-link:nth-child(3) { transform: rotate(0deg) translateX(0px) translateY(-16px); --tx: 0px; --ty: -16px; }
-    .stage-link:nth-child(4) { transform: rotate(2deg) translateX(62px) translateY(-18px); --tx: 62px; --ty: -18px; }
-    .stage-link:nth-child(5) { transform: rotate(4deg) translateX(124px) translateY(-20px); --tx: 124px; --ty: -20px; }
+    .hero-logo {
+      max-width: min(260px, 72vw);
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1rem, 4vw, 1.4rem);
+      margin-bottom: 6px;
+    }
+
+    .hero-tagline {
+      font-size: 0.75rem;
+      margin-bottom: 8px;
+    }
+
+    .stage-shell {
+      height: 200px;
+      margin-bottom: 10px;
+    }
+
+    .hero-cta {
+      min-width: 140px;
+      padding: 11px 18px;
+      font-size: 0.95rem;
+    }
+
+    .stage-link {
+      width: 96px;
+      height: 136px;
+      left: calc(50% - 48px);
+    }
+
+    .stage-link:nth-child(1) { transform: rotate(-4deg) translateX(-96px) translateY(-16px); --tx: -96px; --ty: -16px; }
+    .stage-link:nth-child(2) { transform: rotate(-2deg) translateX(-48px) translateY(-14px); --tx: -48px; --ty: -14px; }
+    .stage-link:nth-child(3) { transform: rotate(0deg) translateX(0px) translateY(-12px); --tx: 0px; --ty: -12px; }
+    .stage-link:nth-child(4) { transform: rotate(2deg) translateX(48px) translateY(-14px); --tx: 48px; --ty: -14px; }
+    .stage-link:nth-child(5) { transform: rotate(4deg) translateX(96px) translateY(-16px); --tx: 96px; --ty: -16px; }
 
     .sticky-cta {
       align-items: stretch;
