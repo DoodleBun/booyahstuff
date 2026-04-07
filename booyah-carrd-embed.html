@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<base target="_blank">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Booyah! TCG</title>
 <!-- iFrame resizer content script (required for Carrd embeds) -->
@@ -1124,29 +1123,29 @@
 
 <div class="hero">
   <div class="hero-subtitle">The Trading Card Game For Artists</div>
-  <a class="hero-logo-link" href="https://booyahtcg.com/#social" aria-label="Go to Booyah! TCG socials" target="_blank" rel="noopener">
+  <div class="hero-logo-link" role="button" tabindex="0" aria-label="Go to Booyah! TCG socials" onclick="window.open('https://booyahtcg.com/#social','_blank')" onkeydown="if(event.key==='Enter')window.open('https://booyahtcg.com/#social','_blank')">
     <img class="hero-logo" src="https://doodlebun.github.io/booyahstuff/l.png" alt="Booyah! TCG">
-  </a>
+  </div>
   <div class="hero-tagline">Share - Play - Trade - Have Fun</div>
 
   <div class="stage-shell">
     <div class="stage" id="stage"></div>
     <div class="stage-menu" id="stageMenu">
-      <a class="stage-link" href="https://booyahtcg.com/#about" aria-label="Info" target="_blank" rel="noopener">
+      <div class="stage-link" role="button" tabindex="0" aria-label="Info" onclick="window.open('https://booyahtcg.com/#about','_blank')" onkeydown="if(event.key==='Enter')window.open('https://booyahtcg.com/#about','_blank')">
         <img src="https://github.com/DoodleBun/booyahstuff/raw/main/b_ab.jpg.png" alt="Info card" loading="lazy" referrerpolicy="no-referrer">
-      </a>
-      <a class="stage-link" href="https://booyahtcg.com/#rules" aria-label="Rules" target="_blank" rel="noopener">
+      </div>
+      <div class="stage-link" role="button" tabindex="0" aria-label="Rules" onclick="window.open('https://booyahtcg.com/#rules','_blank')" onkeydown="if(event.key==='Enter')window.open('https://booyahtcg.com/#rules','_blank')">
         <img src="https://github.com/DoodleBun/booyahstuff/raw/main/b_r.png" alt="Rules card" loading="lazy" referrerpolicy="no-referrer">
-      </a>
-      <a class="stage-link" href="https://booyahtcg.com/#artists" aria-label="Artists" target="_blank" rel="noopener">
+      </div>
+      <div class="stage-link" role="button" tabindex="0" aria-label="Artists" onclick="window.open('https://booyahtcg.com/#artists','_blank')" onkeydown="if(event.key==='Enter')window.open('https://booyahtcg.com/#artists','_blank')">
         <img src="https://github.com/DoodleBun/booyahstuff/raw/main/b_a.png" alt="Artists card" loading="lazy" referrerpolicy="no-referrer">
-      </a>
-      <a class="stage-link" href="https://booyahtcg.com/#cardlist" aria-label="Card list" target="_blank" rel="noopener">
+      </div>
+      <div class="stage-link" role="button" tabindex="0" aria-label="Card list" onclick="window.open('https://booyahtcg.com/#cardlist','_blank')" onkeydown="if(event.key==='Enter')window.open('https://booyahtcg.com/#cardlist','_blank')">
         <img src="https://github.com/DoodleBun/booyahstuff/raw/main/b_c.png" alt="Card list card" loading="lazy" referrerpolicy="no-referrer">
-      </a>
-      <a class="stage-link" href="https://booyahtcg.com/#social" aria-label="Socials" target="_blank" rel="noopener">
+      </div>
+      <div class="stage-link" role="button" tabindex="0" aria-label="Socials" onclick="window.open('https://booyahtcg.com/#social','_blank')" onkeydown="if(event.key==='Enter')window.open('https://booyahtcg.com/#social','_blank')">
         <img src="https://github.com/DoodleBun/booyahstuff/raw/main/b_s.png" alt="Socials card" loading="lazy" referrerpolicy="no-referrer">
-      </a>
+      </div>
     </div>
   </div>
 
@@ -1206,7 +1205,7 @@
     <span class="sticky-cta-title">Ready to join? It's free!</span>
     <span class="sticky-cta-note">Jump in, and become part of the Booyah artist community.</span>
   </div>
-  <a class="hero-cta sticky-cta-btn" href="#join" target="_blank" rel="noopener">Join the game</a>
+  <button class="hero-cta sticky-cta-btn" onclick="window.open('https://booyahtcg.com/#join','_blank')">Join the game</button>
 </div>
 
 <!-- Star reveal popup -->
