@@ -42,9 +42,9 @@
   ];
 
   OPTION_CARDS.forEach((option) => {
-    const link = document.createElement("a");
+    const link = document.createElement("button");
     link.className = "stage-link";
-    link.href = option.hash;
+    link.type = "button";
     link.setAttribute("aria-label", option.label);
 
     const image = document.createElement("img");
@@ -59,22 +59,34 @@
       setExploreOpen(false);
       navigateToOption(option.hash);
     });
+    link.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        setExploreOpen(false);
+        navigateToOption(option.hash);
+      }
+    });
     stageMenu.appendChild(link);
   });
 
   function navigateToOption(hash) {
-    const onBooyahSite = /(^|\.)booyahtcg\.com$/i.test(window.location.hostname);
+    const id = hash.replace(/^#/, "");
+    const target =
+      document.getElementById(id) ||
+      document.querySelector(hash);
 
-    if (onBooyahSite) {
-      if (window.location.hash !== hash) {
-        window.location.hash = hash;
+    if (target) {
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState(null, "", hash);
       } else {
-        window.dispatchEvent(new HashChangeEvent("hashchange"));
+        window.location.hash = hash;
       }
+
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
 
-    window.location.href = `https://booyahtcg.com/${hash}`;
+    window.location.hash = hash;
   }
 
   function setExploreOpen(isOpen) {
