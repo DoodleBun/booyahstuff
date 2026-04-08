@@ -4,6 +4,7 @@
   var stage=root.querySelector('#bcfo-stage');
   var refresh=root.querySelector('#bcfo-refresh');
   var exploreToggle=root.querySelector('#bcfo-explore-toggle');
+  var exploreButton=root.querySelector('#bcfo-explore');
   var menuLinks=root.querySelectorAll('.bcfo-option');
   if(!stage||!refresh)return;
   var base='https://raw.githubusercontent.com/DoodleBun/wafrcardbooyahtcgpreview/main/';
@@ -72,6 +73,8 @@
   function resetExploreState(){
     var active=document.activeElement;
     if(exploreToggle)exploreToggle.checked=false;
+    root.classList.remove('is-exploring');
+    if(exploreButton)exploreButton.setAttribute('aria-expanded','false');
     if(active&&root.contains(active)&&typeof active.blur==='function')active.blur();
   }
   buildCards();
