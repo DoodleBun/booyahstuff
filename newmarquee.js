@@ -21,9 +21,9 @@
   style.textContent=
     '#booyah-artist-marquee{width:100vw;max-width:100vw;margin:18px 0 0 calc(50% - 50vw);padding:10px 0;overflow:hidden;position:relative;background:transparent;border:0;box-shadow:none}'+
     '#booyah-artist-marquee .bam-track{display:flex;width:max-content;animation:booyahMarquee 34s linear infinite;will-change:transform}'+
-    '#booyah-artist-marquee .bam-item{flex:0 0 auto;display:flex;align-items:center;gap:12px;margin:0 10px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.12);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.12)}'+
+    '#booyah-artist-marquee .bam-item{flex:0 0 auto;display:flex;align-items:center;gap:12px;margin:0 10px;padding:8px 14px;border-radius:999px;background:transparent;border:0}'+
     '#booyah-artist-marquee .bam-icon{width:42px;height:42px;border-radius:50%;display:block;object-fit:cover;background:#fff7ea;border:1px solid rgba(215,184,114,.4);box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 5px 10px rgba(0,0,0,.12)}'+
-    '#booyah-artist-marquee .bam-name{font:800 1rem/1.05 "Baloo 2",cursive;color:#7b4e00;white-space:nowrap}'+
+    '#booyah-artist-marquee .bam-name{font:800 1rem/1.05 "Baloo 2",cursive;color:#fff;white-space:nowrap;text-shadow:-1px -1px 0 rgba(0,0,0,.45),1px -1px 0 rgba(0,0,0,.45),-1px 1px 0 rgba(0,0,0,.45),1px 1px 0 rgba(0,0,0,.45)}'+
     '@keyframes booyahMarquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}'+
     '@media (max-width:640px){#booyah-artist-marquee{margin-top:12px;padding:8px 0}#booyah-artist-marquee .bam-item{gap:9px;margin:0 8px;padding:6px 10px}#booyah-artist-marquee .bam-icon{width:34px;height:34px}#booyah-artist-marquee .bam-name{font-size:.88rem}}';
   document.head.appendChild(style);
