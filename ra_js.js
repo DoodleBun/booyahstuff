@@ -6,6 +6,7 @@
   if(!stage||!refresh)return;
   var base='https://raw.githubusercontent.com/DoodleBun/wafrcardbooyahtcgpreview/main/';
   var refreshTimer=0;
+  var burstTimer=0;
   var popWords=['WOW!','SENSATIONAL!','FANTASTIC!','YES!'];
   var rareCards={
     'ap_17.png':1,'ap_18.png':1,'be_10.png':1,'co_10.png':1,'do2_17.png':1,'do2_18.png':1,
@@ -57,37 +58,33 @@
   function triggerBurst(slot){
     var burst=slot.querySelector('.bcfo-burst');
     if(!burst)return;
+    clearTimeout(burstTimer);
     burst.textContent=popWords[Math.floor(Math.random()*popWords.length)];
     burst.className='bcfo-burst';
     burst.offsetWidth;
     burst.className='bcfo-burst is-live';
-    setTimeout(function(){
+    burstTimer=setTimeout(function(){
       burst.className='bcfo-burst';
     },1000);
   }
-  function bindRevealFx(){
-    var flips=stage.querySelectorAll('.bcfo-flip');
-    var i,flip;
-    for(i=0;i<flips.length;i++){
-      flip=flips[i];
-      flip.onchange=function(){
-        var slot=this.parentNode;
-        var cardFile=slot&&slot.getAttribute('data-card-file');
-        if(!slot)return;
-        if(this.checked&&rare(cardFile||'')){
-          slot.className='bcfo-card-slot is-rare is-rare-revealed';
-          triggerBurst(slot);
-        }else if(rare(cardFile||'')){
-          slot.className='bcfo-card-slot is-rare';
-        }else{
-          slot.className='bcfo-card-slot';
-        }
-      };
-    }
-  }
   buildCards();
-  bindRevealFx();
   render();
+  stage.addEventListener('change',function(event){
+    var target=event.target;
+    var slot,cardFile;
+    if(!target||target.className.indexOf('bcfo-flip')===-1)return;
+    slot=target.parentNode;
+    cardFile=slot&&slot.getAttribute('data-card-file');
+    if(!slot)return;
+    if(target.checked&&rare(cardFile||'')){
+      slot.className='bcfo-card-slot is-rare is-rare-revealed';
+      triggerBurst(slot);
+    }else if(rare(cardFile||'')){
+      slot.className='bcfo-card-slot is-rare';
+    }else{
+      slot.className='bcfo-card-slot';
+    }
+  });
   refresh.onclick=function(){
     refresh.disabled=true;
     clearTimeout(refreshTimer);
