@@ -16,16 +16,15 @@
     {name:'Valkyrie Art',file:'va.jpg'},
     {name:'Zenelionn',file:'ze.jpg'}
   ];
-  var iconBase='https://raw.githubusercontent.com/DoodleBun/booyahstuff/main/';
+  var iconBase='https://cdn.jsdelivr.net/gh/DoodleBun/booyahstuff@main/';
   var style=document.createElement('style');
   style.textContent=
-    '#booyah-artist-marquee{width:min(100%,1120px);margin:18px auto 0;overflow:hidden;border-radius:28px;background:linear-gradient(180deg,rgba(255,253,246,.95),rgba(255,244,223,.96));border:1px solid rgba(209,169,74,.28);box-shadow:0 18px 34px rgba(120,90,20,.12);padding:14px 0;position:relative}'+
+    '#booyah-artist-marquee{width:min(100%,1120px);margin:18px auto 0;overflow:hidden;border-radius:28px;background:transparent;border:0;box-shadow:none;padding:14px 0;position:relative}'+
     '#booyah-artist-marquee:before,#booyah-artist-marquee:after{content:\"\";position:absolute;top:0;bottom:0;width:72px;z-index:2;pointer-events:none}'+
-    '#booyah-artist-marquee:before{left:0;background:linear-gradient(90deg,rgba(255,247,232,1),rgba(255,247,232,0))}'+
-    '#booyah-artist-marquee:after{right:0;background:linear-gradient(270deg,rgba(255,247,232,1),rgba(255,247,232,0))}'+
+    '#booyah-artist-marquee:before{left:0;background:linear-gradient(90deg,rgba(255,255,255,.92),rgba(255,255,255,0))}'+
+    '#booyah-artist-marquee:after{right:0;background:linear-gradient(270deg,rgba(255,255,255,.92),rgba(255,255,255,0))}'+
     '#booyah-artist-marquee .bam-track{display:flex;width:max-content;animation:booyahMarquee 34s linear infinite}'+
-    '#booyah-artist-marquee:hover .bam-track{animation-play-state:paused}'+
-    '#booyah-artist-marquee .bam-item{flex:0 0 auto;display:flex;align-items:center;gap:12px;margin:0 10px;padding:11px 18px;border-radius:999px;background:rgba(255,255,255,.72);border:1px solid rgba(215,184,114,.35);box-shadow:0 6px 14px rgba(120,90,20,.08)}'+
+    '#booyah-artist-marquee .bam-item{flex:0 0 auto;display:flex;align-items:center;gap:12px;margin:0 10px;padding:11px 18px;border-radius:999px;background:rgba(255,255,255,.62);border:1px solid rgba(215,184,114,.22);box-shadow:0 6px 14px rgba(120,90,20,.06);backdrop-filter:blur(6px)}'+
     '#booyah-artist-marquee .bam-icon{width:42px;height:42px;border-radius:50%;display:block;object-fit:cover;background:#fff7ea;border:1px solid rgba(215,184,114,.4);box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 5px 10px rgba(0,0,0,.12)}'+
     '#booyah-artist-marquee .bam-name{font:800 1rem/1.05 \"Baloo 2\",cursive;color:#7b4e00;white-space:nowrap}'+
     '@keyframes booyahMarquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}'+
