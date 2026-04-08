@@ -54,9 +54,26 @@
     image.referrerPolicy = "no-referrer";
 
     link.appendChild(image);
-    link.addEventListener("click", () => setExploreOpen(false));
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      setExploreOpen(false);
+      navigateToOption(option.href);
+    });
     stageMenu.appendChild(link);
   });
+
+  function navigateToOption(url) {
+    try {
+      if (window.top && window.top !== window.self) {
+        window.top.location.href = url;
+        return;
+      }
+    } catch (error) {
+      // Fall back to the current window if cross-origin access is blocked.
+    }
+
+    window.location.href = url;
+  }
 
   function setExploreOpen(isOpen) {
     hero.classList.toggle("menu-mode", isOpen);
