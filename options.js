@@ -11,31 +11,31 @@
   const OPTION_CARDS = [
     {
       label: "Info",
-      href: "https://booyahtcg.com/#about",
+      hash: "#about",
       image: "https://github.com/DoodleBun/booyahstuff/raw/main/b_ab.jpg.png",
       alt: "Info card"
     },
     {
       label: "Rules",
-      href: "https://booyahtcg.com/#rules",
+      hash: "#rules",
       image: "https://github.com/DoodleBun/booyahstuff/raw/main/b_r.png",
       alt: "Rules card"
     },
     {
       label: "Artists",
-      href: "https://booyahtcg.com/#artists",
+      hash: "#artists",
       image: "https://github.com/DoodleBun/booyahstuff/raw/main/b_a.png",
       alt: "Artists card"
     },
     {
       label: "Card list",
-      href: "https://booyahtcg.com/#cardlist",
+      hash: "#cardlist",
       image: "https://github.com/DoodleBun/booyahstuff/raw/main/b_c.png",
       alt: "Card list card"
     },
     {
       label: "Socials",
-      href: "https://booyahtcg.com/#social",
+      hash: "#social",
       image: "https://github.com/DoodleBun/booyahstuff/raw/main/b_s.png",
       alt: "Socials card"
     }
@@ -44,7 +44,7 @@
   OPTION_CARDS.forEach((option) => {
     const link = document.createElement("a");
     link.className = "stage-link";
-    link.href = option.href;
+    link.href = option.hash;
     link.setAttribute("aria-label", option.label);
 
     const image = document.createElement("img");
@@ -57,22 +57,24 @@
     link.addEventListener("click", (event) => {
       event.preventDefault();
       setExploreOpen(false);
-      navigateToOption(option.href);
+      navigateToOption(option.hash);
     });
     stageMenu.appendChild(link);
   });
 
-  function navigateToOption(url) {
-    try {
-      if (window.top && window.top !== window.self) {
-        window.top.location.href = url;
-        return;
+  function navigateToOption(hash) {
+    const onBooyahSite = /(^|\.)booyahtcg\.com$/i.test(window.location.hostname);
+
+    if (onBooyahSite) {
+      if (window.location.hash !== hash) {
+        window.location.hash = hash;
+      } else {
+        window.dispatchEvent(new HashChangeEvent("hashchange"));
       }
-    } catch (error) {
-      // Fall back to the current window if cross-origin access is blocked.
+      return;
     }
 
-    window.location.href = url;
+    window.location.href = `https://booyahtcg.com/${hash}`;
   }
 
   function setExploreOpen(isOpen) {
