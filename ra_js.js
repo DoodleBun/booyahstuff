@@ -7,12 +7,16 @@
   var base='https://raw.githubusercontent.com/DoodleBun/wafrcardbooyahtcgpreview/main/';
   var refreshTimer=0;
   var popWords=['WOW!','SENSATIONAL!','FANTASTIC!','YES!'];
+  var rareCards={
+    'ap_17.png':1,'ap_18.png':1,'be_10.png':1,'co_10.png':1,'do2_17.png':1,'do2_18.png':1,
+    'do_17.png':1,'do_18.png':1,'fe_10.png':1,'fe2_10.png':1,'fe3_10.png':1,'ka_10.png':1,
+    'ki_10.png':1,'mm_10.png':1,'va_17.png':1,'va_18.png':1,'ze_10.png':1
+  };
   var groups=[['ap',18],['be',10],['co',10],['do',18],['do2',18],['fe',10],['fe2',10],['fe3',10],['ka',10],['ki',10],['mm',10],['va',18],['ze',10]];
   var cards=[];
   function pad(n){return n<10?'0'+n:String(n)}
   function rare(name){
-    var n=name.slice(name.lastIndexOf('_')+1,-4);
-    return n==='10'||n==='17'||n==='18';
+    return !!rareCards[name];
   }
   function buildCards(){
     var i,j,g;
@@ -40,6 +44,7 @@
       img=slot.querySelector('.bcfo-front img');
       flip=slot.querySelector('.bcfo-flip');
       burst=slot.querySelector('.bcfo-burst');
+      slot.setAttribute('data-card-file',chosen[i]);
       if(img)img.src=base+chosen[i];
       if(flip)flip.checked=false;
       slot.className='bcfo-card-slot'+(rare(chosen[i])?' is-rare':'');
@@ -67,12 +72,15 @@
       flip=flips[i];
       flip.onchange=function(){
         var slot=this.parentNode;
+        var cardFile=slot&&slot.getAttribute('data-card-file');
         if(!slot)return;
-        if(this.checked&&slot.className.indexOf('is-rare')>-1){
+        if(this.checked&&rare(cardFile||'')){
           slot.className='bcfo-card-slot is-rare is-rare-revealed';
           triggerBurst(slot);
-        }else if(slot.className.indexOf('is-rare-revealed')>-1){
+        }else if(rare(cardFile||'')){
           slot.className='bcfo-card-slot is-rare';
+        }else{
+          slot.className='bcfo-card-slot';
         }
       };
     }
@@ -86,6 +94,6 @@
     refreshTimer=setTimeout(function(){
       render();
       refresh.disabled=false;
-    },700);
+    },500);
   };
 }());
