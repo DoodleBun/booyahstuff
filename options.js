@@ -46,6 +46,7 @@
     link.className = "stage-link";
     link.type = "button";
     link.setAttribute("aria-label", option.label);
+    link.dataset.hash = option.hash;
 
     const image = document.createElement("img");
     image.src = option.image;
@@ -75,6 +76,14 @@
   ["click", "auxclick", "pointerdown", "mousedown", "mouseup", "touchstart", "touchend"].forEach((eventName) => {
     stageMenu.addEventListener(eventName, (event) => {
       if (event.target.closest(".stage-link")) {
+        suppressEvent(event);
+      }
+    }, true);
+  });
+
+  ["click", "auxclick", "pointerdown", "mousedown", "mouseup", "touchstart", "touchend"].forEach((eventName) => {
+    document.addEventListener(eventName, (event) => {
+      if (event.target.closest(".stage-link") || event.target.closest("#exploreBtn")) {
         suppressEvent(event);
       }
     }, true);
