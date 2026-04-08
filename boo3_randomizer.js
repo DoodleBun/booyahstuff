@@ -2,8 +2,7 @@
   var root=document.getElementById('booyahcardfanoptions');
   if(!root)return;
   var stage=root.querySelector('#bcfo-stage');
-  var refresh=root.querySelector('#bcfo-refresh');
-  if(!stage||!refresh)return;
+  if(!stage)return;
   var raw='https://raw.githubusercontent.com/DoodleBun/wafrcardbooyahtcgpreview/main/';
   var groups=[['ap',18],['be',10],['co',10],['do',18],['do2',18],['fe',10],['fe2',10],['fe3',10],['ka',10],['ki',10],['mm',10],['va',18],['ze',10]];
   var cards=[];
@@ -41,5 +40,4 @@
   }
   build();
   render();
-  refresh.addEventListener('click',render);
 }());
