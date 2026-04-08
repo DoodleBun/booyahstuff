@@ -3,6 +3,8 @@
   if(!root)return;
   var stage=root.querySelector('#bcfo-stage');
   var refresh=root.querySelector('#bcfo-refresh');
+  var exploreToggle=root.querySelector('#bcfo-explore-toggle');
+  var menuLinks=root.querySelectorAll('.bcfo-option');
   if(!stage||!refresh)return;
   var base='https://raw.githubusercontent.com/DoodleBun/wafrcardbooyahtcgpreview/main/';
   var refreshTimer=0;
@@ -67,8 +69,14 @@
       burst.className='bcfo-burst';
     },1000);
   }
+  function resetExploreState(){
+    var active=document.activeElement;
+    if(exploreToggle)exploreToggle.checked=false;
+    if(active&&root.contains(active)&&typeof active.blur==='function')active.blur();
+  }
   buildCards();
   render();
+  resetExploreState();
   stage.addEventListener('change',function(event){
     var target=event.target;
     var slot,cardFile;
@@ -91,6 +99,12 @@
     refreshTimer=setTimeout(function(){
       render();
       refresh.disabled=false;
-    },500);
+    },200);
   };
+  Array.prototype.forEach.call(menuLinks,function(link){
+    link.addEventListener('click',resetExploreState);
+  });
+  window.addEventListener('hashchange',resetExploreState);
+  window.addEventListener('pageshow',resetExploreState);
+  window.addEventListener('pagehide',resetExploreState);
 }());
