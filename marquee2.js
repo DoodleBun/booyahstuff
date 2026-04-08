@@ -1,6 +1,5 @@
 (function(){
-  var root=document.getElementById('booyahcardfanoptions');
-  if(!root||document.getElementById('booyah-artist-marquee'))return;
+  if(document.getElementById('booyah-artist-marquee'))return;
 
   var artists=[
     {name:'Aperture Plushies', file:'Aperture.jpg'},
@@ -101,11 +100,14 @@
   var track=document.createElement('div');
   track.className='bam-track';
 
-  /* list duplicated so the loop seam is invisible */
   for(var i=0;i<artists.length*2;i++){
     track.appendChild(makeChip(artists[i%artists.length]));
   }
 
   marquee.appendChild(track);
-  root.insertAdjacentElement('afterend',marquee);
+
+  /* Insert relative to the script tag itself, not booyahcardfanoptions */
+  var scripts=document.getElementsByTagName('script');
+  var thisScript=scripts[scripts.length-1];
+  thisScript.parentNode.insertBefore(marquee,thisScript);
 }());
