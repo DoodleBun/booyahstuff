@@ -90,22 +90,19 @@
 
   function navigateToOption(hash) {
     const id = hash.replace(/^#/, "");
-    const target =
-      document.getElementById(id) ||
-      document.querySelector(hash);
+    const target = findTarget(document, id, hash);
 
     if (target) {
-      if (window.history && window.history.replaceState) {
-        window.history.replaceState(null, "", hash);
-      } else {
-        window.location.hash = hash;
-      }
-
+      window.location.hash = hash;
       target.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
 
     window.location.hash = hash;
+  }
+
+  function findTarget(rootDocument, id, hash) {
+    return rootDocument.getElementById(id) || rootDocument.querySelector(hash);
   }
 
   function setExploreOpen(isOpen) {
