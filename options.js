@@ -45,8 +45,6 @@
     const link = document.createElement("a");
     link.className = "stage-link";
     link.href = option.href;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
     link.setAttribute("aria-label", option.label);
 
     const image = document.createElement("img");
