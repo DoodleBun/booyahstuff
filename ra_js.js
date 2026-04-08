@@ -51,6 +51,6 @@
     refreshTimer=setTimeout(function(){
       render();
       refresh.disabled=false;
-    },200);
+    },500);
   };
 }());
