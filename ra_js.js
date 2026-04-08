@@ -4,6 +4,7 @@
   var stage=root.querySelector('#bcfo-stage');
   var refresh=root.querySelector('#bcfo-refresh');
   if(!stage||!refresh)return;
+  var flips=stage.querySelectorAll('.bcfo-flip');
   var base='https://raw.githubusercontent.com/DoodleBun/wafrcardbooyahtcgpreview/main/';
   var groups=[['ap',18],['be',10],['co',10],['do',18],['do2',18],['fe',10],['fe2',10],['fe3',10],['ka',10],['ki',10],['mm',10],['va',18],['ze',10]];
   var cards=[];
@@ -41,8 +42,21 @@
       if(flip)flip.checked=false;
       slot.className='bcfo-card-slot'+(rare(chosen[i])?' is-rare':'');
     }
+    syncRefresh();
+  }
+  function syncRefresh(){
+    var i,allOpen=flips.length>0;
+    for(i=0;i<flips.length;i++){
+      if(!flips[i].checked){
+        allOpen=false;
+        break;
+      }
+    }
+    refresh.disabled=!allOpen;
+    refresh.className='bcfo-btn bcfo-refresh'+(allOpen?'':' is-hidden');
   }
   buildCards();
+  for(var i=0;i<flips.length;i++)flips[i].onchange=syncRefresh;
   render();
   refresh.onclick=render;
 }());
