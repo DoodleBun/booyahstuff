@@ -58,26 +58,23 @@
     stageMenu.appendChild(link);
   });
 
-  exploreBtn.addEventListener("click", (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setExploreOpen(!hero.classList.contains("menu-mode"));
+  exploreBtn.addEventListener("click", function () {
+    var isOpen = hero.classList.contains("menu-mode");
+    hero.classList.toggle("menu-mode", !isOpen);
+    exploreBtn.setAttribute("aria-expanded", String(!isOpen));
   });
 
-  function setExploreOpen(isOpen) {
-    hero.classList.toggle("menu-mode", isOpen);
-    exploreBtn.setAttribute("aria-expanded", String(isOpen));
-  }
-
-  document.addEventListener("click", (event) => {
+  document.addEventListener("click", function (event) {
     if (!exploreNav.contains(event.target) && !event.target.closest(".stage-menu")) {
-      setExploreOpen(false);
+      hero.classList.remove("menu-mode");
+      exploreBtn.setAttribute("aria-expanded", "false");
     }
   });
 
-  document.addEventListener("keydown", (event) => {
+  document.addEventListener("keydown", function (event) {
     if (event.key === "Escape") {
-      setExploreOpen(false);
+      hero.classList.remove("menu-mode");
+      exploreBtn.setAttribute("aria-expanded", "false");
     }
   });
 }());
