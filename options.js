@@ -44,9 +44,8 @@
   OPTION_CARDS.forEach((option) => {
     const link = document.createElement("a");
     link.className = "stage-link";
-    link.href = window.location.href.split("#")[0] + option.hashes[0];
-    link.target = "_blank";
-    link.rel = "noopener";
+    link.href = option.hashes[0];
+    link.target = "_top";
     link.setAttribute("aria-label", option.label);
 
     const image = document.createElement("img");
@@ -56,7 +55,6 @@
     image.referrerPolicy = "no-referrer";
 
     link.appendChild(image);
-
     stageMenu.appendChild(link);
   });
 
