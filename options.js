@@ -44,10 +44,10 @@
   OPTION_CARDS.forEach((option) => {
     const link = document.createElement("a");
     link.className = "stage-link";
-    link.href = option.hashes[0];
-    link.target = "_self";
+    link.href = window.location.href.split("#")[0] + option.hashes[0];
+    link.target = "_blank";
+    link.rel = "noopener";
     link.setAttribute("aria-label", option.label);
-    link.dataset.hash = option.hashes[0];
 
     const image = document.createElement("img");
     image.src = option.image;
@@ -56,90 +56,31 @@
     image.referrerPolicy = "no-referrer";
 
     link.appendChild(image);
+
     link.addEventListener("click", (event) => {
       event.stopPropagation();
       setExploreOpen(false);
-      navigateToOption(option.hashes, event);
     }, true);
+
     link.addEventListener("keydown", (event) => {
       if (event.key === "Enter" || event.key === " ") {
-        suppressEvent(event);
+        event.preventDefault();
         setExploreOpen(false);
-        navigateToOption(option.hashes, event);
+        window.open(link.href, "_blank", "noopener");
       }
     });
+
     stageMenu.appendChild(link);
   });
 
-  bindButtonShield(exploreBtn, () => {
-    setExploreOpen(!hero.classList.contains("menu-mode"));
-  });
-
-  function suppressEvent(event) {
+  exploreBtn.addEventListener("click", (event) => {
     event.preventDefault();
     event.stopPropagation();
     if (typeof event.stopImmediatePropagation === "function") {
       event.stopImmediatePropagation();
     }
-  }
-
-  function bindButtonShield(button, onActivate) {
-    button.addEventListener("click", (event) => {
-      suppressEvent(event);
-      onActivate();
-    }, true);
-  }
-
-  function navigateToOption(hashes, event) {
-    suppressEvent(event);
-
-    const matchedHash = hashes.find((hash) => {
-      const id = hash.replace(/^#/, "");
-      return Boolean(findTarget(document, id, hash));
-    });
-    const hash = matchedHash || hashes[0];
-    const id = hash.replace(/^#/, "");
-    const target = findTarget(document, id, hash);
-
-    if (target) {
-      // Use pushState so the URL updates without triggering a native jump.
-      // Safari fights hard when window.location.hash and scrollIntoView both
-      // fire — it either sticks mid-page or slams sections together.
-      if (window.history && typeof window.history.pushState === "function") {
-        window.history.pushState(null, "", hash);
-      }
-      // Small delay so the menu-close CSS transition finishes before
-      // we ask Safari to scroll — otherwise the layout shift mid-animation
-      // confuses its scroll engine and it stops early.
-      setTimeout(function () {
-        target.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 80);
-      return;
-    }
-
-    // Fallback: no matching target found on page, plain hash change is fine.
-    window.location.hash = hash;
-  }
-
-  function findTarget(rootDocument, id, hash) {
-    const escapedId = escapeSelector(id);
-
-    return (
-      rootDocument.getElementById(id) ||
-      rootDocument.querySelector(hash) ||
-      rootDocument.querySelector(`[data-scroll-id="${escapedId}"]`) ||
-      rootDocument.querySelector(`[data-section="${escapedId}"]`) ||
-      rootDocument.querySelector(`[name="${escapedId}"]`)
-    );
-  }
-
-  function escapeSelector(value) {
-    if (window.CSS && typeof window.CSS.escape === "function") {
-      return window.CSS.escape(value);
-    }
-
-    return String(value).replace(/["\\]/g, "\\$&");
-  }
+    setExploreOpen(!hero.classList.contains("menu-mode"));
+  }, true);
 
   function setExploreOpen(isOpen) {
     hero.classList.toggle("menu-mode", isOpen);
