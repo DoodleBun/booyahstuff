@@ -2,6 +2,7 @@
   const hero = document.querySelector(".hero");
   const exploreNav = document.getElementById("exploreNav");
   const exploreBtn = document.getElementById("exploreBtn");
+  const refreshBtn = document.getElementById("refreshBtn");
   const stageMenu = document.getElementById("stageMenu");
 
   if (!hero || !exploreNav || !exploreBtn || !stageMenu) {
@@ -55,39 +56,32 @@
     image.referrerPolicy = "no-referrer";
 
     link.appendChild(image);
-    ["pointerdown", "mousedown", "mouseup", "touchstart", "touchend", "auxclick"].forEach((eventName) => {
-      link.addEventListener(eventName, suppressEvent, true);
-    });
-    link.addEventListener("click", (event) => {
-      suppressEvent(event);
+    bindButtonShield(link, () => {
       setExploreOpen(false);
       navigateToOption(option.hash);
-    }, true);
+    });
     link.addEventListener("keydown", (event) => {
       if (event.key === "Enter" || event.key === " ") {
         suppressEvent(event);
         setExploreOpen(false);
         navigateToOption(option.hash);
       }
-    }, true);
+    });
     stageMenu.appendChild(link);
   });
 
-  ["click", "auxclick", "pointerdown", "mousedown", "mouseup", "touchstart", "touchend"].forEach((eventName) => {
-    stageMenu.addEventListener(eventName, (event) => {
-      if (event.target.closest(".stage-link")) {
-        suppressEvent(event);
-      }
-    }, true);
+  bindButtonShield(exploreBtn, () => {
+    setExploreOpen(!hero.classList.contains("menu-mode"));
   });
 
-  ["click", "auxclick", "pointerdown", "mousedown", "mouseup", "touchstart", "touchend"].forEach((eventName) => {
-    document.addEventListener(eventName, (event) => {
-      if (event.target.closest(".stage-link") || event.target.closest("#exploreBtn")) {
-        suppressEvent(event);
+  if (refreshBtn) {
+    bindButtonShield(refreshBtn, () => {
+      setExploreOpen(false);
+      if (typeof window.refreshBooyahCards === "function") {
+        window.refreshBooyahCards();
       }
-    }, true);
-  });
+    });
+  }
 
   function suppressEvent(event) {
     event.preventDefault();
@@ -97,17 +91,32 @@
     }
   }
 
+  function bindButtonShield(button, onActivate) {
+    ["pointerdown", "mousedown", "mouseup", "touchstart", "touchend", "auxclick"].forEach((eventName) => {
+      button.addEventListener(eventName, suppressEvent);
+    });
+
+    button.addEventListener("click", (event) => {
+      suppressEvent(event);
+      onActivate();
+    });
+  }
+
   function navigateToOption(hash) {
     const id = hash.replace(/^#/, "");
     const target = findTarget(document, id, hash);
+    const url = new URL(window.location.href);
+    url.hash = id;
 
     if (target) {
-      window.location.hash = hash;
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.history.pushState(null, "", url.toString());
+      requestAnimationFrame(() => {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
       return;
     }
 
-    window.location.hash = hash;
+    window.location.assign(url.toString());
   }
 
   function findTarget(rootDocument, id, hash) {
@@ -118,10 +127,6 @@
     hero.classList.toggle("menu-mode", isOpen);
     exploreBtn.setAttribute("aria-expanded", String(isOpen));
   }
-
-  exploreBtn.addEventListener("click", () => {
-    setExploreOpen(!hero.classList.contains("menu-mode"));
-  });
 
   document.addEventListener("click", (event) => {
     if (!exploreNav.contains(event.target) && !event.target.closest(".stage-menu")) {
