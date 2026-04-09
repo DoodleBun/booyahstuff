@@ -57,30 +57,14 @@
 
     link.appendChild(image);
 
-    link.addEventListener("click", (event) => {
-      event.stopPropagation();
-      setExploreOpen(false);
-    }, true);
-
-    link.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        setExploreOpen(false);
-        window.open(link.href, "_blank", "noopener");
-      }
-    });
-
     stageMenu.appendChild(link);
   });
 
   exploreBtn.addEventListener("click", (event) => {
     event.preventDefault();
     event.stopPropagation();
-    if (typeof event.stopImmediatePropagation === "function") {
-      event.stopImmediatePropagation();
-    }
     setExploreOpen(!hero.classList.contains("menu-mode"));
-  }, true);
+  });
 
   function setExploreOpen(isOpen) {
     hero.classList.toggle("menu-mode", isOpen);
