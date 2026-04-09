@@ -2,7 +2,6 @@
   const BACK_URL = "https://doodlebun.github.io/booyahstuff/BACK.jpg";
   const RAW = "https://doodlebun.github.io/wafrcardbooyahtcgpreview/";
   const stage = document.getElementById("stage");
-
   if (!stage) {
     return;
   }
@@ -42,6 +41,18 @@
     return shuffled.slice(0, n);
   }
 
+  function resetStageEffects() {
+    const pop = document.getElementById("starPop");
+    if (pop) {
+      pop.className = "star-pop";
+      pop.textContent = "";
+    }
+
+    document.querySelectorAll(".particle").forEach((particle) => {
+      particle.remove();
+    });
+  }
+
   function showStarBurst(cardEl) {
     const pop = document.getElementById("starPop");
     if (!pop) {
@@ -76,52 +87,60 @@
     });
   }
 
-  const chosen = pickRandom(CARDS, 5);
+  function renderCards() {
+    stage.innerHTML = "";
+    resetStageEffects();
 
-  chosen.forEach((card) => {
-    const wrap = document.createElement("div");
-    wrap.className = `card-wrap${card.stars === 3 ? " three-star" : ""}`;
-    wrap.setAttribute("role", "button");
-    wrap.setAttribute("tabindex", "0");
-    wrap.setAttribute("aria-label", "Reveal card");
-    wrap.innerHTML = `
-      <div class="card-inner">
-        <div class="card-face card-back">
-          <img src="${BACK_URL}" alt="Card back" loading="eager" referrerpolicy="no-referrer">
+    const chosen = pickRandom(CARDS, 5);
+
+    chosen.forEach((card) => {
+      const wrap = document.createElement("div");
+      wrap.className = `card-wrap${card.stars === 3 ? " three-star" : ""}`;
+      wrap.setAttribute("role", "button");
+      wrap.setAttribute("tabindex", "0");
+      wrap.setAttribute("aria-label", "Reveal card");
+      wrap.innerHTML = `
+        <div class="card-inner">
+          <div class="card-face card-back">
+            <img src="${BACK_URL}" alt="Card back" loading="eager" referrerpolicy="no-referrer">
+          </div>
+          <div class="card-face card-front">
+            <img src="${RAW}${card.file}" alt="Booyah card" loading="lazy" referrerpolicy="no-referrer">
+          </div>
         </div>
-        <div class="card-face card-front">
-          <img src="${RAW}${card.file}" alt="Booyah card" loading="lazy" referrerpolicy="no-referrer">
-        </div>
-      </div>
-    `;
+      `;
 
-    let clicked = false;
-    const revealCard = () => {
-      if (clicked) {
-        return;
-      }
-
-      clicked = true;
-      wrap.classList.add("flipping");
-
-      setTimeout(() => {
-        wrap.classList.add("flipped");
-        wrap.classList.remove("flipping");
-
-        if (card.stars === 3) {
-          showStarBurst(wrap);
+      let clicked = false;
+      const revealCard = () => {
+        if (clicked) {
+          return;
         }
-      }, 50);
-    };
 
-    wrap.addEventListener("click", revealCard);
-    wrap.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        revealCard();
-      }
+        clicked = true;
+        wrap.classList.add("flipping");
+
+        setTimeout(() => {
+          wrap.classList.add("flipped");
+          wrap.classList.remove("flipping");
+
+          if (card.stars === 3) {
+            showStarBurst(wrap);
+          }
+        }, 50);
+      };
+
+      wrap.addEventListener("click", revealCard);
+      wrap.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          revealCard();
+        }
+      });
+
+      stage.appendChild(wrap);
     });
+  }
 
-    stage.appendChild(wrap);
-  });
+  window.refreshBooyahCards = renderCards;
+  renderCards();
 }());
