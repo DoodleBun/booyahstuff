@@ -2,7 +2,6 @@
   const hero = document.querySelector(".hero");
   const exploreNav = document.getElementById("exploreNav");
   const exploreBtn = document.getElementById("exploreBtn");
-  const refreshBtn = document.getElementById("refreshBtn");
   const stageMenu = document.getElementById("stageMenu");
 
   if (!hero || !exploreNav || !exploreBtn || !stageMenu) {
@@ -75,15 +74,6 @@
   bindButtonShield(exploreBtn, () => {
     setExploreOpen(!hero.classList.contains("menu-mode"));
   });
-
-  if (refreshBtn) {
-    bindButtonShield(refreshBtn, () => {
-      setExploreOpen(false);
-      if (typeof window.refreshBooyahCards === "function") {
-        window.refreshBooyahCards();
-      }
-    });
-  }
 
   function suppressEvent(event) {
     event.preventDefault();
