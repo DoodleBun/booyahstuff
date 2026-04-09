@@ -12,42 +12,43 @@
   const OPTION_CARDS = [
     {
       label: "Info",
-      hash: "#about",
+      hashes: ["#about", "#home"],
       image: "https://github.com/DoodleBun/booyahstuff/raw/main/b_ab.jpg.png",
       alt: "Info card"
     },
     {
       label: "Rules",
-      hash: "#rules",
+      hashes: ["#rules"],
       image: "https://github.com/DoodleBun/booyahstuff/raw/main/b_r.png",
       alt: "Rules card"
     },
     {
       label: "Artists",
-      hash: "#artists",
+      hashes: ["#artists"],
       image: "https://github.com/DoodleBun/booyahstuff/raw/main/b_a.png",
       alt: "Artists card"
     },
     {
       label: "Card list",
-      hash: "#cardlist",
+      hashes: ["#card-list", "#cardlist"],
       image: "https://github.com/DoodleBun/booyahstuff/raw/main/b_c.png",
       alt: "Card list card"
     },
     {
       label: "Socials",
-      hash: "#social",
+      hashes: ["#social-media", "#social"],
       image: "https://github.com/DoodleBun/booyahstuff/raw/main/b_s.png",
       alt: "Socials card"
     }
   ];
 
   OPTION_CARDS.forEach((option) => {
-    const link = document.createElement("button");
+    const link = document.createElement("a");
     link.className = "stage-link";
-    link.type = "button";
+    link.href = option.hashes[0];
+    link.target = "_self";
     link.setAttribute("aria-label", option.label);
-    link.dataset.hash = option.hash;
+    link.dataset.hash = option.hashes[0];
 
     const image = document.createElement("img");
     image.src = option.image;
@@ -56,15 +57,16 @@
     image.referrerPolicy = "no-referrer";
 
     link.appendChild(image);
-    bindButtonShield(link, () => {
+    link.addEventListener("click", (event) => {
+      event.stopPropagation();
       setExploreOpen(false);
-      navigateToOption(option.hash);
-    });
+      navigateToOption(option.hashes, event);
+    }, true);
     link.addEventListener("keydown", (event) => {
       if (event.key === "Enter" || event.key === " ") {
         suppressEvent(event);
         setExploreOpen(false);
-        navigateToOption(option.hash);
+        navigateToOption(option.hashes, event);
       }
     });
     stageMenu.appendChild(link);
@@ -98,25 +100,46 @@
     }, true);
   }
 
-  function navigateToOption(hash) {
+  function navigateToOption(hashes, event) {
+    const matchedHash = hashes.find((hash) => {
+      const id = hash.replace(/^#/, "");
+      return Boolean(findTarget(document, id, hash));
+    });
+    const hash = matchedHash || hashes[0];
     const id = hash.replace(/^#/, "");
     const target = findTarget(document, id, hash);
-    const url = new URL(window.location.href);
-    url.hash = id;
 
     if (target) {
-      window.history.pushState(null, "", url.toString());
+      suppressEvent(event);
+      window.location.hash = hash;
       requestAnimationFrame(() => {
         target.scrollIntoView({ behavior: "smooth", block: "start" });
       });
       return;
     }
 
-    window.location.assign(url.toString());
+    suppressEvent(event);
+    window.location.hash = hash;
   }
 
   function findTarget(rootDocument, id, hash) {
-    return rootDocument.getElementById(id) || rootDocument.querySelector(hash);
+    const escapedId = escapeSelector(id);
+
+    return (
+      rootDocument.getElementById(id) ||
+      rootDocument.querySelector(hash) ||
+      rootDocument.querySelector(`[data-scroll-id="${escapedId}"]`) ||
+      rootDocument.querySelector(`[data-section="${escapedId}"]`) ||
+      rootDocument.querySelector(`[name="${escapedId}"]`)
+    );
+  }
+
+  function escapeSelector(value) {
+    if (window.CSS && typeof window.CSS.escape === "function") {
+      return window.CSS.escape(value);
+    }
+
+    return String(value).replace(/["\\]/g, "\\$&");
   }
 
   function setExploreOpen(isOpen) {
