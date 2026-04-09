@@ -92,14 +92,10 @@
   }
 
   function bindButtonShield(button, onActivate) {
-    ["pointerdown", "mousedown", "mouseup", "touchstart", "touchend", "auxclick"].forEach((eventName) => {
-      button.addEventListener(eventName, suppressEvent);
-    });
-
     button.addEventListener("click", (event) => {
       suppressEvent(event);
       onActivate();
-    });
+    }, true);
   }
 
   function navigateToOption(hash) {
