@@ -91,6 +91,8 @@
   }
 
   function navigateToOption(hashes, event) {
+    suppressEvent(event);
+
     const matchedHash = hashes.find((hash) => {
       const id = hash.replace(/^#/, "");
       return Boolean(findTarget(document, id, hash));
@@ -100,15 +102,22 @@
     const target = findTarget(document, id, hash);
 
     if (target) {
-      suppressEvent(event);
-      window.location.hash = hash;
-      requestAnimationFrame(() => {
+      // Use pushState so the URL updates without triggering a native jump.
+      // Safari fights hard when window.location.hash and scrollIntoView both
+      // fire — it either sticks mid-page or slams sections together.
+      if (window.history && typeof window.history.pushState === "function") {
+        window.history.pushState(null, "", hash);
+      }
+      // Small delay so the menu-close CSS transition finishes before
+      // we ask Safari to scroll — otherwise the layout shift mid-animation
+      // confuses its scroll engine and it stops early.
+      setTimeout(function () {
         target.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
+      }, 80);
       return;
     }
 
-    suppressEvent(event);
+    // Fallback: no matching target found on page, plain hash change is fine.
     window.location.hash = hash;
   }
 
