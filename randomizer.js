@@ -95,15 +95,15 @@
       }
     }, 100);
 
-    // Hide after 1 second
+    // Hide after 0.5 seconds
     setTimeout(() => {
       clearInterval(sparkInterval);
       overlay.classList.add("hide");
       overlay.classList.remove("show");
       setTimeout(() => {
         overlay.className = "star-overlay";
-      }, 500);
-    }, 1000);
+      }, 400);
+    }, 500);
   }
 
   function renderCards() {
