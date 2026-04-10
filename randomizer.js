@@ -42,49 +42,64 @@
   }
 
   function resetStageEffects() {
-    const pop = document.getElementById("starPop");
-    if (pop) {
-      pop.className = "star-pop";
-      pop.textContent = "";
+    const overlay = document.getElementById("starOverlay");
+    if (overlay) {
+      overlay.className = "star-overlay";
     }
 
-    document.querySelectorAll(".particle").forEach((particle) => {
-      particle.remove();
-    });
+    document.querySelectorAll(".spark, .particle").forEach((el) => el.remove());
   }
 
   function showStarBurst(cardEl) {
-    const pop = document.getElementById("starPop");
-    if (!pop) {
-      return;
-    }
+    const overlay = document.getElementById("starOverlay");
+    if (!overlay) return;
 
-    pop.textContent = "\u2B50\u2B50\u2B50 Wow! \u2B50\u2B50\u2B50";
-    pop.className = "star-pop show";
-    setTimeout(() => pop.classList.add("hide"), 900);
+    // Show overlay
+    overlay.className = "star-overlay show";
+
+    // Spawn sparkles continuously while overlay is visible
+    const sparkEmojis = ["✨", "⭐", "🌟", "💫", "✨", "⭐", "🌟", "💥", "✨", "💛"];
+    let sparkInterval = setInterval(() => {
+      for (let i = 0; i < 3; i++) {
+        const spark = document.createElement("div");
+        spark.className = "spark";
+        const emoji = sparkEmojis[Math.floor(Math.random() * sparkEmojis.length)];
+        spark.textContent = emoji;
+
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        // Start from random edge or center-ish
+        const startX = vw * 0.1 + Math.random() * vw * 0.8;
+        const startY = vh * 0.1 + Math.random() * vh * 0.8;
+
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 80 + Math.random() * 200;
+        const size = 20 + Math.random() * 36;
+        const dur = 0.9 + Math.random() * 0.8;
+        const spin = `${(Math.random() - 0.5) * 360}deg`;
+
+        spark.style.left = `${startX}px`;
+        spark.style.top = `${startY}px`;
+        spark.style.setProperty("--dx", `${Math.cos(angle) * dist}px`);
+        spark.style.setProperty("--dy", `${Math.sin(angle) * dist}px`);
+        spark.style.setProperty("--sz", `${size}px`);
+        spark.style.setProperty("--dur", `${dur}s`);
+        spark.style.setProperty("--delay", "0s");
+        spark.style.setProperty("--spin", spin);
+        document.body.appendChild(spark);
+        setTimeout(() => spark.remove(), dur * 1000 + 100);
+      }
+    }, 120);
+
+    // Hide after 3 seconds
     setTimeout(() => {
-      pop.className = "star-pop";
-    }, 1400);
-
-    const rect = cardEl.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const emojis = ["\u2728", "\u2B50", "\u{1F31F}", "\u{1F4AB}", "\u2728", "\u2B50"];
-
-    emojis.forEach((emoji, j) => {
-      const particle = document.createElement("div");
-      particle.className = "particle";
-      particle.textContent = emoji;
-
-      const angle = (j / emojis.length) * Math.PI * 2;
-      const dist = 80 + Math.random() * 60;
-      particle.style.left = `${cx}px`;
-      particle.style.top = `${cy}px`;
-      particle.style.setProperty("--dx", `${Math.cos(angle) * dist}px`);
-      particle.style.setProperty("--dy", `${Math.sin(angle) * dist}px`);
-      document.body.appendChild(particle);
-      setTimeout(() => particle.remove(), 1000);
-    });
+      clearInterval(sparkInterval);
+      overlay.classList.add("hide");
+      overlay.classList.remove("show");
+      setTimeout(() => {
+        overlay.className = "star-overlay";
+      }, 600);
+    }, 3000);
   }
 
   function renderCards() {
