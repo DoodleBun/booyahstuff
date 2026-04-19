@@ -10,6 +10,8 @@
     ...Array.from({ length: 16 }, (_, i) => ({ file: `ap_${String(i + 1).padStart(2, "0")}.png`, stars: i < 16 ? 1 : 3 })),
     { file: "ap_17.png", stars: 3 },
     { file: "ap_18.png", stars: 3 },
+    ...Array.from({ length: 9 }, (_, i) => ({ file: `ba_${String(i + 1).padStart(2, "0")}.png`, stars: 1 })),
+    { file: "ba_10.png", stars: 3 },
     ...Array.from({ length: 9 }, (_, i) => ({ file: `be_${String(i + 1).padStart(2, "0")}.png`, stars: 1 })),
     { file: "be_10.png", stars: 3 },
     ...Array.from({ length: 9 }, (_, i) => ({ file: `co_${String(i + 1).padStart(2, "0")}.png`, stars: 1 })),
@@ -24,7 +26,17 @@
     ...Array.from({ length: 9 }, (_, i) => ({ file: `fe2_${String(i + 1).padStart(2, "0")}.png`, stars: 1 })),
     { file: "fe2_10.png", stars: 3 },
     ...Array.from({ length: 9 }, (_, i) => ({ file: `fe3_${String(i + 1).padStart(2, "0")}.png`, stars: 1 })),
-    { file: "fe3_10.png", stars: 3 }
+    { file: "fe3_10.png", stars: 3 },
+    ...Array.from({ length: 9 }, (_, i) => ({ file: `ka_${String(i + 1).padStart(2, "0")}.png`, stars: 1 })),
+    { file: "ka_10.png", stars: 3 },
+    ...Array.from({ length: 9 }, (_, i) => ({ file: `ki_${String(i + 1).padStart(2, "0")}.png`, stars: 1 })),
+    { file: "ki_10.png", stars: 3 },
+    ...Array.from({ length: 9 }, (_, i) => ({ file: `mm_${String(i + 1).padStart(2, "0")}.png`, stars: 1 })),
+    { file: "mm_10.png", stars: 3 },
+    ...Array.from({ length: 9 }, (_, i) => ({ file: `va_${String(i + 1).padStart(2, "0")}.png`, stars: 1 })),
+    { file: "va_10.png", stars: 3 },
+    ...Array.from({ length: 9 }, (_, i) => ({ file: `ze_${String(i + 1).padStart(2, "0")}.png`, stars: 1 })),
+    { file: "ze_10.png", stars: 3 },
   ];
 
   const seen = new Set();
