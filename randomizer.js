@@ -16,6 +16,8 @@
     { file: "be_10.png", stars: 3 },
     ...Array.from({ length: 9 }, (_, i) => ({ file: `co_${String(i + 1).padStart(2, "0")}.png`, stars: 1 })),
     { file: "co_10.png", stars: 3 },
+    ...Array.from({ length: 9 }, (_, i) => ({ file: `de_${String(i + 1).padStart(2, "0")}.png`, stars: 1 })),
+    { file: "de_10.png", stars: 3 },
     ...Array.from({ length: 16 }, (_, i) => ({ file: `do_${String(i + 1).padStart(2, "0")}.png`, stars: 1 })),
     { file: "do_17.png", stars: 3 },
     { file: "do_18.png", stars: 3 },
