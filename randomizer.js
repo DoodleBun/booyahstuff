@@ -78,36 +78,36 @@
     if (wowEl) wowEl.textContent = phrase;
 
     // Spawn sparkles continuously while overlay is visible
-    const sparkEmojis = ["✨", "⭐", "🌟", "💫", "✨", "⭐", "🌟", "💥", "✨", "💛"];
-    let sparkInterval = setInterval(() => {
-      for (let i = 0; i < 3; i++) {
-        const spark = document.createElement("div");
-        spark.className = "spark";
-        spark.textContent = sparkEmojis[Math.floor(Math.random() * sparkEmojis.length)];
+   // const sparkEmojis = ["✨", "⭐", "🌟", "💫", "✨", "⭐", "🌟", "💥", "✨", "💛"];
+  //  let sparkInterval = setInterval(() => {
+   //   for (let i = 0; i < 3; i++) {
+    //    const spark = document.createElement("div");
+     //   spark.className = "spark";
+     //   spark.textContent = sparkEmojis[Math.floor(Math.random() * sparkEmojis.length)];
 
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        const startX = vw * 0.1 + Math.random() * vw * 0.8;
-        const startY = vh * 0.1 + Math.random() * vh * 0.8;
+  //      const vw = window.innerWidth;
+  //      const vh = window.innerHeight;
+  //      const startX = vw * 0.1 + Math.random() * vw * 0.8;
+  //      const startY = vh * 0.1 + Math.random() * vh * 0.8;
 
-        const angle = Math.random() * Math.PI * 2;
-        const dist = 80 + Math.random() * 200;
-        const size = 20 + Math.random() * 36;
-        const dur = 0.7 + Math.random() * 0.4;
-        const spin = `${(Math.random() - 0.5) * 360}deg`;
+  //      const angle = Math.random() * Math.PI * 2;
+  //      const dist = 80 + Math.random() * 200;
+  //      const size = 20 + Math.random() * 36;
+  //      const dur = 0.7 + Math.random() * 0.4;
+  //      const spin = `${(Math.random() - 0.5) * 360}deg`;
 
-        spark.style.left = `${startX}px`;
-        spark.style.top = `${startY}px`;
-        spark.style.setProperty("--dx", `${Math.cos(angle) * dist}px`);
-        spark.style.setProperty("--dy", `${Math.sin(angle) * dist}px`);
-        spark.style.setProperty("--sz", `${size}px`);
-        spark.style.setProperty("--dur", `${dur}s`);
-        spark.style.setProperty("--delay", "0s");
-        spark.style.setProperty("--spin", spin);
-        document.body.appendChild(spark);
-        setTimeout(() => spark.remove(), dur * 1000 + 100);
-      }
-    }, 100);
+  //      spark.style.left = `${startX}px`;
+  //      spark.style.top = `${startY}px`;
+  //      spark.style.setProperty("--dx", `${Math.cos(angle) * dist}px`);
+  //      spark.style.setProperty("--dy", `${Math.sin(angle) * dist}px`);
+  //      spark.style.setProperty("--sz", `${size}px`);
+  //      spark.style.setProperty("--dur", `${dur}s`);
+  //      spark.style.setProperty("--delay", "0s");
+  //      spark.style.setProperty("--spin", spin);
+  //      document.body.appendChild(spark);
+  //      setTimeout(() => spark.remove(), dur * 1000 + 100); 
+  //    }
+ //   }, 100);
 
     // Hide after 0.8 seconds
     setTimeout(() => {
