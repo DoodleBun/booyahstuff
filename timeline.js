@@ -1,13 +1,3 @@
-/* ============================================================
-   BOOYAH! TCG — "The Making Of" Timeline (logic + data)
-   ------------------------------------------------------------
-   Host this file on GitHub and load it from Carrd with:
-     <script src="YOUR_JSDELIVR_URL/timeline.js" defer></script>
-
-   This script expects the HTML/CSS block (timeline-embed.html)
-   to already be present on the page — it just finds the
-   #booyah-tl-track container and fills it in.
-   ============================================================ */
 (function () {
 
   /* ============================================================
@@ -30,24 +20,40 @@
     {
       title: "Creation of Booyah",
       date: "June 2024",
-      cardTitle: "It All Began...",
-      description: "DoodleBun sketches out the very first rules and card concepts for Booyah, laying the foundation for a game built for artists, by artists.",
-      image: "",
+      cardTitle: "Project 'RPSB'",
+      description: "DoodleBun sketches out the very first concepts for a card game called 'Rock-Paper-Scissors-Boom!', which then evolved and is now known as Booyah!",
+      image: "https://raw.githubusercontent.com/DoodleBun/wafrcardbooyahtcgpreview/main/1.jpg",
       upcoming: false
     },
     {
       title: "Prototyping",
-      date: "September 2024",
-      cardTitle: "First Playable Draft",
-      description: "The rules get put to the test. Early prototype cards are printed and shuffled to see whether the rock-paper-scissors battle system actually holds up.",
+      date: "August 2024",
+      cardTitle: "Beta Testing",
+      description: "The rules get put to the test. Early prototype cards are created to see whether the game battle system actually works properly.",
+      image: "https://raw.githubusercontent.com/DoodleBun/wafrcardbooyahtcgpreview/main/2.jpg",
+      upcoming: false
+    },
+    {
+      title: "Product Testing",
+      date: "October 2024",
+      cardTitle: "Cards Cards Cards",
+      description: "The first few packs from DoodleBun's set and the spread of flyers to invite artists to join this game.",
       image: "",
       upcoming: false
     },
     {
-      title: "Product Test & Research",
-      date: "January 2025",
-      cardTitle: "Refining The Game",
-      description: "Playtesting with real groups, gathering feedback, and fine-tuning deck sizes, star ratings, and balance ahead of a wider release.",
+      title: "Social Media creation",
+      date: "December 2024",
+      cardTitle: "Spread the word",
+      description: "Created (dormant) accounts for various social media, such as Twitter, Bluesky, Instagram, and Discord, will be used for updates of all sorts in the future.",
+      image: "",
+      upcoming: false
+    },
+    {
+      title: "Face Of The Game",
+      date: "February 2025",
+      cardTitle: "All the mascots",
+      description: "New characters created to represent the game, for a total of 12 of them.",
       image: "",
       upcoming: false
     },
@@ -55,15 +61,14 @@
       title: "What's Next",
       date: "2026",
       cardTitle: "The Journey Continues",
-      description: "New artists, new booster packs, and new features for the Booyah community. Stay tuned!",
+      description: "New artists, new booster packs, new game modes, new features and the official release of the main sets with official characters, Stay tuned for more!",
       image: "",
       upcoming: true
     }
   ];
 
   /* ============================================================
-     2. RENDER LOGIC — you shouldn't need to edit anything below
-     unless you want to change the HTML structure itself.
+     2. RENDER LOGIC
      ============================================================ */
   const placeholderIcon = `
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -118,9 +123,6 @@
 
     /* ============================================================
        3. LINE POSITIONING
-       ------------------------------------------------------------
-       Measures the actual rendered position of the first and last
-       dots and draws a single line straight through their centers.
        ============================================================ */
     function layoutLine() {
       const dots = track.querySelectorAll(".booyah-tl-dot");
@@ -162,10 +164,6 @@
     requestAnimationFrame(layoutLine);
   }
 
-  // Because this file is loaded with `defer`, the DOM (including the
-  // Carrd embed HTML) is already parsed by the time this runs — but
-  // we guard with DOMContentLoaded anyway in case it's ever loaded
-  // without defer.
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else {
