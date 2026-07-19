@@ -38,7 +38,7 @@
       date: "October 2024",
       cardTitle: "Cards Cards Cards",
       description: "The first few packs from DoodleBun's set and the spread of flyers to invite artists to join this game.",
-      image: "",
+      image: "https://raw.githubusercontent.com/DoodleBun/wafrcardbooyahtcgpreview/main/3.jpg",
       upcoming: false
     },
     {
