@@ -44,17 +44,17 @@
     {
       title: "Social Media creation",
       date: "December 2024",
-      cardTitle: "Spread the word",
-      description: "Created (dormant) accounts for various social media, such as Twitter, Bluesky, Instagram, and Discord, will be used for updates of all sorts in the future.",
-      image: "",
+      cardTitle: "Spread The Word",
+      description: "Created accounts for various social media (WIP!), such as Twitter, Bluesky, Instagram, and Discord, will be used for updates of all sorts in the future.",
+      image: "https://raw.githubusercontent.com/DoodleBun/wafrcardbooyahtcgpreview/main/4.jpg",
       upcoming: false
     },
     {
       title: "Face Of The Game",
       date: "February 2025",
-      cardTitle: "All the mascots",
+      cardTitle: "Meet The Cast",
       description: "New characters created to represent the game, for a total of 12 of them.",
-      image: "",
+      image: "https://raw.githubusercontent.com/DoodleBun/wafrcardbooyahtcgpreview/main/5.jpg",
       upcoming: false
     },
     {
@@ -62,7 +62,7 @@
       date: "2026",
       cardTitle: "The Journey Continues",
       description: "New artists, new booster packs, new game modes, new features and the official release of the main sets with official characters, Stay tuned for more!",
-      image: "",
+      image: "https://raw.githubusercontent.com/DoodleBun/wafrcardbooyahtcgpreview/main/6.jpg",
       upcoming: true
     }
   ];
