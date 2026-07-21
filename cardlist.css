@@ -99,8 +99,9 @@ body {
 
 /* Reduced vertical gap between rows */
 .artist-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 0.75rem 1.2rem;
 }
 
@@ -108,6 +109,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex: 0 0 115px;
   gap: .45rem;
   padding: .25rem;
   border: none;
@@ -519,8 +521,11 @@ body {
 
   /* 10 artists per row on desktop with larger 108px icons and wider layout */
   .artist-grid {
-    grid-template-columns: repeat(10, 1fr);
     gap: 0.65rem 0.8rem;
+  }
+
+  .artist-tile {
+    flex-basis: 108px;
   }
 
   .icon-frame {
@@ -564,8 +569,11 @@ body {
 
 @media (max-width: 600px) {
   .artist-grid {
-    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
     gap: .75rem .65rem;
+  }
+
+  .artist-tile {
+    flex-basis: 90px;
   }
 
   .icon-frame { width: 88px; height: 88px; }
