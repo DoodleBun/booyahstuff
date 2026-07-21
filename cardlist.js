@@ -7,11 +7,11 @@ const ICON_BASE = "https://raw.githubusercontent.com/DoodleBun/booyahstuff/main/
 
 const ARTISTS = [
   { name: "Aperture Plushies", icon: "Aperture.jpg", profileUrl: "https://booyahtcg.com/#apertureplushies", volumes: [{ id: "ap", label: "Volume 1", n: 18 }] },
-  { name: "B.A",               icon: "ba.png",      profileUrl: "https://booyahtcg.com/#ba",               volumes: [{ id: "ba", label: "Volume 1", n: 10 }] },
-  { name: "Beeps Creatures",   icon: "Beep.jpg",     profileUrl: "https://booyahtcg.com/#beepscreatures",  volumes: [{ id: "be", label: "Volume 1", n: 10 }] },
+  { name: "B.A",               icon: "ba.jpg",       profileUrl: "https://booyahtcg.com/#ba",               volumes: [{ id: "ba", label: "Volume 1", n: 10 }] },
+  { name: "Beeps Creatures",   icon: "Beep.jpg",     profileUrl: "https://booyahtcg.com/#beepscreatures",   volumes: [{ id: "be", label: "Volume 1", n: 10 }] },
   { name: "CORKiE",            icon: "Co.jpg",       profileUrl: "https://booyahtcg.com/#corkie",           volumes: [{ id: "co", label: "Volume 1", n: 10 }] },
   { name: "DapperTetu",        icon: "da.jpg",       profileUrl: "https://booyahtcg.com/#dappertetu",       comingSoon: true },
-  { name: "Dead Bois",         icon: "de.jpg",       profileUrl: "https://booyahtcg.com/#deadbois",        volumes: [{ id: "de", label: "Volume 1", n: 10 }] },
+  { name: "Dead Bois",         icon: "de.jpg",       profileUrl: "https://booyahtcg.com/#deadbois",         volumes: [{ id: "de", label: "Volume 1", n: 10 }] },
   {
     name: "DoodleBun",
     icon: "do.jpg",
