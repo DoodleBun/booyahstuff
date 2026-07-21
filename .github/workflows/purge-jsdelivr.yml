@@ -1,0 +1,14 @@
+name: Purge jsDelivr cache
+
+   on:
+     push:
+       branches: [main]
+
+   jobs:
+     purge:
+       runs-on: ubuntu-latest
+       steps:
+         - name: Purge cardlist.css and cardlist.js
+           run: |
+             curl -s "https://purge.jsdelivr.net/gh/DoodleBun/booyahstuff@main/cardlist.css"
+             curl -s "https://purge.jsdelivr.net/gh/DoodleBun/booyahstuff@main/cardlist.js"
