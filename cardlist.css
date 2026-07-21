@@ -55,8 +55,11 @@ body {
 }
 
 #cardlist {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
   max-width: 1400px;
-  margin: 0 auto;
   padding: 1.5rem 1.25rem 4rem;
 }
 
