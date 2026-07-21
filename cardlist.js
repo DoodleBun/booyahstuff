@@ -1,29 +1,5 @@
 /* =========================================================================
-   HOW TO INSERT / MANAGE CARDS & ARTISTS (GitHub & Carrd Guide)
-   =========================================================================
-   1. GITHUB CARD REPOS:
-      Upload card images directly to your GitHub repository:
-      - CARD BASE: https://github.com/DoodleBun/wafrcardbooyahtcgpreview
-      - ICON BASE: https://github.com/DoodleBun/booyahstuff
-
-      FILE NAMING CONVENTION FOR CARDS:
-      Each card file MUST follow this exact format: [volume_id]_[two_digit_number].png
-      Examples:
-        - Volume 1 for DoodleBun (id: "do"): do_01.png, do_02.png, ..., do_18.png
-        - Volume 2 for DoodleBun (id: "do2"): do2_01.png, do2_02.png, ..., do2_18.png
-        - Volume 1 for Aperture Plushies (id: "ap"): ap_01.png, ap_02.png, ..., ap_18.png
-
-   2. ADDING / EDITING AN ARTIST IN THE "ARTISTS" ARRAY BELOW:
-      To add or edit an artist, modify or add an object in the ARTISTS array:
-      
-      - name:        Artist display name.
-      - icon:        Filename of artist avatar image in ICON_BASE repo (e.g. "do.jpg").
-      - profileUrl:  Artist page URL on booyahtcg.com.
-      - comingSoon:  (Optional) Set to true if cards are under development.
-      - volumes:     Array of card volumes. Each volume object contains:
-                       - id:    The filename prefix in GitHub (e.g. "do", "do2", "fe3").
-                       - label: Display header (e.g. "Volume 1", "Volume 2").
-                       - n:     Total number of card images in this volume.
+   CARDS
    ========================================================================= */
 
 const CARD_BASE = "https://raw.githubusercontent.com/DoodleBun/wafrcardbooyahtcgpreview/main/";
