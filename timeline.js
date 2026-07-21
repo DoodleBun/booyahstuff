@@ -34,7 +34,7 @@
       upcoming: false
     },
     {
-      title: "Product Testing",
+      title: "First Sales",
       date: "October 2024",
       cardTitle: "Cards Cards Cards",
       description: "The first few packs from DoodleBun's set and the spread of flyers to invite artists to join this game.",
@@ -53,7 +53,7 @@
       title: "Face Of The Game",
       date: "February 2025",
       cardTitle: "Meet The Cast",
-      description: "New characters created to represent the game, for a total of 12 of them.",
+      description: "Started with Nikki and Bunbot 3000 as the main mascots, then slowly evolving into its own little bubble with now a cast of 12 characters representing the game.",
       image: "https://raw.githubusercontent.com/DoodleBun/wafrcardbooyahtcgpreview/main/5.jpg",
       upcoming: false
     },
