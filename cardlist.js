@@ -24,29 +24,22 @@
                        - id:    The filename prefix in GitHub (e.g. "do", "do2", "fe3").
                        - label: Display header (e.g. "Volume 1", "Volume 2").
                        - n:     Total number of card images in this volume.
-
-   3. CARRD EMBED INSTRUCTIONS:
-      In your Carrd Pro Editor:
-      - Add an "Embed" element where you want the card list to display.
-      - Set Type: "Code".
-      - Set Mode: "Inline" (or inside <body>).
-      - Paste this entire HTML file into the Embed box.
    ========================================================================= */
 
 const CARD_BASE = "https://raw.githubusercontent.com/DoodleBun/wafrcardbooyahtcgpreview/main/";
 const ICON_BASE = "https://raw.githubusercontent.com/DoodleBun/booyahstuff/main/";
 
 const ARTISTS = [
-  { name: "Aperture Plushies", icon: "Aperture.jpg", profileUrl: "https://booyahtcg.com/artists/aperture-plushies", volumes: [{ id: "ap", label: "Volume 1", n: 18 }] },
-  { name: "B.A",               icon: "b_a.png",      profileUrl: "https://booyahtcg.com/artists/ba",               volumes: [{ id: "ba", label: "Volume 1", n: 10 }] },
-  { name: "Beeps Creatures",   icon: "Beep.jpg",     profileUrl: "https://booyahtcg.com/artists/beeps-creatures",  volumes: [{ id: "be", label: "Volume 1", n: 10 }] },
-  { name: "CORKiE",            icon: "Co.jpg",       profileUrl: "https://booyahtcg.com/artists/corkie",           volumes: [{ id: "co", label: "Volume 1", n: 10 }] },
-  { name: "DapperTetu",        icon: "da.jpg",       profileUrl: "https://booyahtcg.com/artists/dappertetu",       comingSoon: true },
-  { name: "Dead Bois",         icon: "de.jpg",       profileUrl: "https://booyahtcg.com/artists/dead-bois",        volumes: [{ id: "de", label: "Volume 1", n: 10 }] },
+  { name: "Aperture Plushies", icon: "Aperture.jpg", profileUrl: "https://booyahtcg.com/#apertureplushies", volumes: [{ id: "ap", label: "Volume 1", n: 18 }] },
+  { name: "B.A",               icon: "ba.png",      profileUrl: "https://booyahtcg.com/#ba",               volumes: [{ id: "ba", label: "Volume 1", n: 10 }] },
+  { name: "Beeps Creatures",   icon: "Beep.jpg",     profileUrl: "https://booyahtcg.com/#beepscreatures",  volumes: [{ id: "be", label: "Volume 1", n: 10 }] },
+  { name: "CORKiE",            icon: "Co.jpg",       profileUrl: "https://booyahtcg.com/#corkie",           volumes: [{ id: "co", label: "Volume 1", n: 10 }] },
+  { name: "DapperTetu",        icon: "da.jpg",       profileUrl: "https://booyahtcg.com/#dappertetu",       comingSoon: true },
+  { name: "Dead Bois",         icon: "de.jpg",       profileUrl: "https://booyahtcg.com/#deadbois",        volumes: [{ id: "de", label: "Volume 1", n: 10 }] },
   {
     name: "DoodleBun",
     icon: "do.jpg",
-    profileUrl: "https://booyahtcg.com/artists/doodlebun",
+    profileUrl: "https://booyahtcg.com/#doodlebun",
     volumes: [
       { id: "do",  label: "Volume 1", n: 18 },
       { id: "do2", label: "Volume 2", n: 18 },
@@ -55,21 +48,21 @@ const ARTISTS = [
   {
     name: "Feral Foliage",
     icon: "fe.jpg",
-    profileUrl: "https://booyahtcg.com/artists/feral-foliage",
+    profileUrl: "https://booyahtcg.com/#feralfoliage",
     volumes: [
       { id: "fe",  label: "Volume 1", n: 10 },
       { id: "fe2", label: "Volume 2", n: 10 },
       { id: "fe3", label: "Volume 3", n: 10 },
     ],
   },
-  { name: "Igor1908",          icon: "ig.jpg",       profileUrl: "https://booyahtcg.com/artists/igor1908",          comingSoon: true },
-  { name: "Kaladania",         icon: "ka.jpg",       profileUrl: "https://booyahtcg.com/artists/kaladania",        volumes: [{ id: "ka", label: "Volume 1", n: 10 }] },
-  { name: "Kirava1",           icon: "ki.jpg",       profileUrl: "https://booyahtcg.com/artists/kirava1",          volumes: [{ id: "ki", label: "Volume 1", n: 10 }] },
-  { name: "LewdSideQuest",     icon: "le.jpg",       profileUrl: "https://booyahtcg.com/artists/lewdsidequest",    comingSoon: true },
-  { name: "M.McRobo",          icon: "mc.png",       profileUrl: "https://booyahtcg.com/artists/m-mcrobo",         volumes: [{ id: "mc", label: "Volume 1", n: 10 }] },
-  { name: "Valkyrie Art",      icon: "va.jpg",       profileUrl: "https://booyahtcg.com/artists/valkyrie-art",     volumes: [{ id: "va", label: "Volume 1", n: 10 }] },
-  { name: "WhisperFluff",      icon: "Wf.jpg",       profileUrl: "https://booyahtcg.com/artists/whisperfluff",     comingSoon: true },
-  { name: "Zenelionn",         icon: "ze.jpg",       profileUrl: "https://booyahtcg.com/artists/zenelionn",        volumes: [{ id: "ze", label: "Volume 1", n: 10 }] },
+  { name: "Igor1908",          icon: "ig.jpg",       profileUrl: "https://booyahtcg.com/#igor1908",         comingSoon: true },
+  { name: "Kaladania",         icon: "ka.jpg",       profileUrl: "https://booyahtcg.com/#kaladania",        volumes: [{ id: "ka", label: "Volume 1", n: 10 }] },
+  { name: "Kirava1",           icon: "ki.jpg",       profileUrl: "https://booyahtcg.com/#kirava1",          volumes: [{ id: "ki", label: "Volume 1", n: 10 }] },
+  { name: "LewdSideQuest",     icon: "le.jpg",       profileUrl: "https://booyahtcg.com/#lewdsidequest",    comingSoon: true },
+  { name: "M.McRobo",          icon: "mc.png",       profileUrl: "https://booyahtcg.com/#m-mcrobo",         volumes: [{ id: "mc", label: "Volume 1", n: 10 }] },
+  { name: "Valkyrie Art",      icon: "va.jpg",       profileUrl: "https://booyahtcg.com/#valkyrie-art",     volumes: [{ id: "va", label: "Volume 1", n: 10 }] },
+  { name: "WhisperFluff",      icon: "Wf.jpg",       profileUrl: "https://booyahtcg.com/#whisperfluff",     comingSoon: true },
+  { name: "Zenelionn",         icon: "ze.jpg",       profileUrl: "https://booyahtcg.com/#zenelionn",        volumes: [{ id: "ze", label: "Volume 1", n: 10 }] },
 ];
 
 function pad(n) { return n < 10 ? "0" + n : "" + n; }
