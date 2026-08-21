@@ -35,7 +35,7 @@
         anchor: "#apertureplushies",
         image: "https://github.com/DoodleBun/booyahstuff/raw/main/Aperture.jpg",
         trading: true,
-        flag: "ðŸ‡¦ðŸ‡·",
+        flag: "🇦🇷",
         volumes: [{ id: "ap", label: "Volume 1", n: 18 }]
       },
       {
@@ -43,7 +43,7 @@
         anchor: "#ba",
         image: "https://github.com/DoodleBun/booyahstuff/raw/main/ba.jpg",
         trading: false,
-        flag: "ðŸ‡ºðŸ‡¸",
+        flag: "🇺🇸",
         volumes: [{ id: "ba", label: "Volume 1", n: 10 }]
       },
       {
@@ -51,7 +51,7 @@
         anchor: "#beepscreatures",
         image: "https://github.com/DoodleBun/booyahstuff/raw/main/Beep.jpg",
         trading: true,
-        flag: "ðŸ‡¬ðŸ‡§",
+        flag: "🇬🇧",
         volumes: [{ id: "be", label: "Volume 1", n: 10 }]
       },
       {
@@ -59,7 +59,7 @@
         anchor: "#corkie",
         image: "https://github.com/DoodleBun/booyahstuff/raw/main/Co.jpg",
         trading: true,
-        flag: "ðŸ‡¬ðŸ‡§",
+        flag: "🇬🇧",
         volumes: [{ id: "co", label: "Volume 1", n: 10 }]
       },
       {
@@ -67,7 +67,7 @@
         anchor: "#dappertetu",
         image: "https://github.com/DoodleBun/booyahstuff/raw/main/da.jpg",
         trading: false,
-        flag: "ðŸ‡ºðŸ‡¸",
+        flag: "🇺🇸",
         comingSoon: true
       },
       {
@@ -75,7 +75,7 @@
         anchor: "#deadbois",
         image: "https://github.com/DoodleBun/booyahstuff/raw/main/de.jpg",
         trading: true,
-        flag: "",
+        flag: "🇬🇧",
         volumes: [{ id: "de", label: "Volume 1", n: 10 }]
       },
       {
@@ -83,7 +83,7 @@
         anchor: "#doodlebun",
         image: "https://github.com/DoodleBun/booyahstuff/raw/main/do.jpg",
         trading: true,
-        flag: "ðŸ‡®ðŸ‡¹",
+        flag: "🇮🇹",
         volumes: [
           { id: "do",  label: "Volume 1", n: 18 },
           { id: "do2", label: "Volume 2", n: 18 }
@@ -94,7 +94,7 @@
         anchor: "#feralfoliage",
         image: "https://github.com/DoodleBun/booyahstuff/raw/main/fe.jpg",
         trading: false,
-        flag: "",
+        flag: "🇬🇧",
         volumes: [
           { id: "fe",  label: "Volume 1", n: 10 },
           { id: "fe2", label: "Volume 2", n: 10 },
@@ -106,7 +106,7 @@
         anchor: "#igor1908",
         image: "https://github.com/DoodleBun/booyahstuff/raw/main/ig.jpg",
         trading: false,
-        flag: "",
+        flag: "🇧🇷",
         comingSoon: true
       },
       {
@@ -114,7 +114,7 @@
         anchor: "#kaladania",
         image: "https://github.com/DoodleBun/booyahstuff/raw/main/ka.jpg",
         trading: false,
-        flag: "",
+        flag: "🇬🇧",
         volumes: [{ id: "ka", label: "Volume 1", n: 10 }]
       },
       {
@@ -122,7 +122,7 @@
         anchor: "#kirava1",
         image: "https://github.com/DoodleBun/booyahstuff/raw/main/ki.jpg",
         trading: true,
-        flag: "",
+        flag: "🇬🇧",
         volumes: [{ id: "ki", label: "Volume 1", n: 10 }]
       },
       {
@@ -130,7 +130,7 @@
         anchor: "#lewdsidequest",
         image: "https://github.com/DoodleBun/booyahstuff/raw/main/le.jpg",
         trading: false,
-        flag: "",
+        flag: "🇧🇷",
         comingSoon: true
       },
       {
@@ -138,7 +138,7 @@
         anchor: "#mmcrobo",
         image: "https://github.com/DoodleBun/booyahstuff/raw/main/mc.png",
         trading: true,
-        flag: "",
+        flag: "🇺🇸",
         volumes: [{
           id: "mm",
           label: "Volume 1",
@@ -152,7 +152,7 @@
         anchor: "#valkyrieart",
         image: "https://github.com/DoodleBun/booyahstuff/raw/main/va.jpg",
         trading: true,
-        flag: "",
+        flag: "🇬🇧",
         volumes: [{ id: "va", label: "Volume 1", n: 18 }]
       },
       {
@@ -160,7 +160,7 @@
         anchor: "#whisperfluff",
         image: "https://github.com/DoodleBun/booyahstuff/raw/main/Wf.jpg",
         trading: false,
-        flag: "",
+        flag: "🇺🇸",
         comingSoon: true
       },
       {
@@ -168,7 +168,7 @@
         anchor: "#zenelionn",
         image: "https://github.com/DoodleBun/booyahstuff/raw/main/ze.jpg",
         trading: true,
-        flag: "",
+        flag: "🇬🇧",
         volumes: [{ id: "ze", label: "Volume 1", n: 10 }]
       }
     ];
