@@ -74,7 +74,7 @@
       {
         name: "JackTheWolf528",
         anchor: "#jackthewolf528",
-        image: "https://github.com/DoodleBun/booyahstuff/raw/main/jtw.jpg",
+        image: "https://github.com/DoodleBun/booyahstuff/raw/main/jtw.png",
         trading: false,
         comingSoon: true
       },
