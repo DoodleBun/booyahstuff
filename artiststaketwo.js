@@ -1,33 +1,5 @@
-/* =========================================================================
-       DATA & CONSTANTS
-       ========================================================================= */
     const CARD_BASE = "https://raw.githubusercontent.com/DoodleBun/wafrcardbooyahtcgpreview/main/";
-    
-    /* =========================================================================
-       ★ ARTIST LIST — EDIT / ADD ARTISTS HERE ★
-       To add an artist, copy one complete object below, paste it immediately
-       before the closing ]; of ARTISTS, then change its values. Separate every
-       artist object with a comma. Leave the rest of this file unchanged.
-       
-       {
-         name: "Artist Name",
-         anchor: "#artistanchor", // The anchor link on booyahtcg.com (e.g. #apertureplushies)
-         image: "https://github.com/DoodleBun/booyahstuff/raw/main/avatar.jpg", // Profile picture
-         trading: true,          // true if trading, false otherwise
-         
-         // Choose ONE of the following options:
-         // OPTION 1: If cards are still in development
-         comingSoon: true
-         
-         // OPTION 2: If they have cards ready
-         volumes: [
-           { id: "va", label: "Volume 1", n: 18 } 
-           // id is the file prefix (e.g., if files are va_01.png, va_02.png, id is "va")
-           // label is the drawer section header (e.g., "Volume 1")
-           // n is the number of cards in that volume
-         ]
-       },
-       ========================================================================= */
+
     const ARTISTS = [
       {
         name: "Aperture Plushies",
@@ -139,6 +111,13 @@
           // Use the repository's exact M.McRobo filenames.
           files: ["mm_01.png", "mm_02.png", "mm_03.png", "mm_04.png", "mm_05.png", "mm_06.png", "mm_07.png", "mm_08.png", "mm_09.png", "mm_10.png"]
         }]
+      },
+      {
+        name: "NekoPumpkin",
+        anchor: "#nekopumpkin",
+        image: "https://github.com/DoodleBun/booyahstuff/raw/main/np.jpg",
+        trading: false,
+        comingSoon: true
       },
       {
         name: "Valkyrie Art",
