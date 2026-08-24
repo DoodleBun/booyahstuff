@@ -115,7 +115,7 @@
       {
         name: "NekoPumpkin",
         anchor: "#nekopumpkin",
-        image: "https://github.com/DoodleBun/booyahstuff/raw/main/np.jpg",
+        image: "https://github.com/DoodleBun/booyahstuff/raw/main/np.png",
         trading: false,
         comingSoon: true
       },
