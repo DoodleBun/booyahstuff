@@ -100,6 +100,13 @@
         comingSoon: true
       },
       {
+        name: "JackTheWolf528",
+        anchor: "#jackthewolf528",
+        image: "https://github.com/DoodleBun/booyahstuff/raw/main/jtw.jpg",
+        trading: false,
+        comingSoon: true
+      },
+      {
         name: "Kaladania",
         anchor: "#kaladania",
         image: "https://github.com/DoodleBun/booyahstuff/raw/main/ka.jpg",
