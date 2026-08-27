@@ -293,6 +293,19 @@
     if (inspectorInner) inspectorInner.style.transform = "";
   }
 
+  // Locks/unlocks page scroll while the inspector is open, so the only
+  // thing the user can scroll/click is the zoomed card itself and its
+  // own close/arrow controls — the card wall behind it can't be touched.
+  function lockBackgroundScroll() {
+    document.documentElement.classList.add("booyah-modal-open");
+    document.body.classList.add("booyah-modal-open");
+  }
+
+  function unlockBackgroundScroll() {
+    document.documentElement.classList.remove("booyah-modal-open");
+    document.body.classList.remove("booyah-modal-open");
+  }
+
   window.openCardInspector = function (idx) {
     if (!modal || !inspectorImg) return;
     if (typeof idx === "string") {
@@ -301,12 +314,14 @@
     }
     updateInspectorCard(idx);
     modal.classList.add("open");
+    lockBackgroundScroll();
   };
 
   window.closeCardInspector = function (e) {
     if (!modal) return;
     if (!e || e.target === modal || e.target.classList.contains("inspector-close-btn")) {
       modal.classList.remove("open");
+      unlockBackgroundScroll();
     }
   };
 
