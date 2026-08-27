@@ -16,6 +16,9 @@
   --by-muted: #8E95A5;
   --by-border: rgba(255, 255, 255, 0.12);
   --by-sidebar-bg: #0e101c;
+  --by-sidebar-w: 290px;       /* desktop sidebar width, referenced below */
+  --by-layout-max: 1700px;     /* keep in sync with .booyah-layout max-width */
+  --by-topbar-h: 4rem;         /* mobile top bar height, referenced below */
 }
 
 /* Base protection & transparent background - Smooth, non-blocking scroll */
@@ -32,6 +35,15 @@ body {
   line-height: 1.4;
   -webkit-user-select: none;
   user-select: none;
+}
+
+/* Card inspector open: lock the page so only the zoomed card can be
+   interacted with (no background scroll/click leaking through). Toggled
+   by JS via document.documentElement/body.classList. */
+html.booyah-modal-open,
+body.booyah-modal-open {
+  overflow: hidden !important;
+  height: 100%;
 }
 
 .booyah-cardwall-root {
@@ -51,7 +63,7 @@ body {
 /* App Layout */
 .booyah-layout {
   display: flex;
-  max-width: 1700px;
+  max-width: var(--by-layout-max);
   margin: 0 auto;
   min-height: 100vh;
   position: relative;
@@ -61,10 +73,18 @@ body {
    LEFT SIDEBAR: ARTIST LIST (DESKTOP)
    ------------------------------------------------------------- */
 .booyah-sidebar {
-  width: 290px;
+  width: var(--by-sidebar-w);
   flex-shrink: 0;
-  position: sticky;
+  /* FIX: Carrd wraps embedded sections in containers that can break
+     `position: sticky` (ancestor overflow/transform), which made the
+     sidebar scroll away with the page. `position: fixed` pins it to the
+     viewport regardless of what Carrd does around it. The left offset
+     re-centers it under the same max-width the layout uses, so it still
+     lines up with the content on wide screens instead of hugging the
+     browser edge. */
+  position: fixed;
   top: 0;
+  left: max(0px, calc((100vw - var(--by-layout-max)) / 2));
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -201,6 +221,10 @@ body {
    ------------------------------------------------------------- */
 .booyah-main-wall {
   flex: 1;
+  /* FIX: the sidebar is now `position: fixed`, so it no longer takes up
+     space as a flex sibling. This margin reserves that space back so
+     the cards start to the right of the sidebar instead of under it. */
+  margin-left: var(--by-sidebar-w);
   padding: 1.5rem 2rem 5rem;
   min-width: 0;
 }
@@ -437,6 +461,9 @@ body {
 @media (max-width: 900px) {
   .booyah-layout {
     flex-direction: column;
+    /* FIX: reserve space for the now `fixed` mobile top bar so it
+       doesn't cover the first row of cards. */
+    margin-top: var(--by-topbar-h);
   }
 
   /* Show Mobile Top Bar with Hamburger */
@@ -444,8 +471,13 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    position: sticky;
+    /* FIX: same sticky -> fixed swap as the desktop sidebar, for the
+       same reason (Carrd's wrapper can break `position: sticky`). */
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
+    height: var(--by-topbar-h);
     z-index: 99990;
     padding: 0.85rem 1.25rem;
     background: #0e101c;
@@ -491,7 +523,8 @@ body {
     letter-spacing: 0.5px;
   }
 
-  /* Slide-out Drawer Sidebar for Mobile */
+  /* Slide-out Drawer Sidebar for Mobile (overrides the desktop
+     fixed-with-offset rule above with plain top:0/left:0) */
   .booyah-sidebar {
     position: fixed;
     top: 0;
@@ -548,6 +581,9 @@ body {
   }
 
   .booyah-main-wall {
+    /* FIX: reset the desktop fixed-sidebar offset — the mobile sidebar
+       is an overlay drawer, not a flow sibling, so it needs no gutter. */
+    margin-left: 0;
     padding: 1rem 0.75rem 4rem;
   }
 
