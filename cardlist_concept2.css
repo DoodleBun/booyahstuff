@@ -1,16 +1,11 @@
 /* =========================================================================
-   BOOYAH! TCG — CONCEPT 2 CARD WALL (SCOPED FOR EMBEDDING — SAFE VERSION)
-   -------------------------------------------------------------------------
-   Selectors that used to hit *, html, and body globally are now scoped
-   under .booyah-cardwall-root so they only affect this widget and never
-   leak out to the rest of booyahtcg.com.
+   BOOYAH! TCG — CONCEPT 2 CARD WALL (CLEAN, NO SCROLL LOCKS, NO LOOPING)
    ========================================================================= */
 
-.booyah-cardwall-root,
-.booyah-cardwall-root *,
-.booyah-cardwall-root *::before,
-.booyah-cardwall-root *::after {
+*, *::before, *::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 :root {
@@ -23,18 +18,26 @@
   --by-sidebar-bg: #0e101c;
 }
 
-/* Scoped root container — replaces the old global html/body rules */
+/* Base protection & transparent background - Smooth, non-blocking scroll */
+html {
+  background: transparent !important;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: transparent !important;
+  color: var(--by-text);
+  font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+  line-height: 1.4;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 .booyah-cardwall-root {
   background: transparent;
   width: 100%;
   position: relative;
-  color: var(--by-text);
-  font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  line-height: 1.4;
-  -webkit-user-select: none;
-  user-select: none;
-  margin: 0;
-  padding: 0;
 }
 
 .booyah-cardwall-root img {
@@ -125,6 +128,7 @@
   color: #FFFFFF;
 }
 
+/* CLEAN BLACK BORDER (NO GLOW / NO BOX-SHADOW) */
 .artist-nav-avatar {
   width: 40px;
   height: 40px;
@@ -146,6 +150,7 @@
   min-width: 0;
 }
 
+/* BIGGER ARTIST NAME IN SIDEBAR */
 .artist-nav-name {
   font-weight: 800;
   font-size: 1.12rem;
@@ -200,6 +205,7 @@
   min-width: 0;
 }
 
+/* Artist Section */
 .booyah-artist-section {
   margin-bottom: 4rem;
   scroll-margin-top: 5.5rem;
@@ -214,6 +220,7 @@
   margin-bottom: 1.25rem;
 }
 
+/* CLEAN BLACK BORDER */
 .section-artist-avatar {
   width: 56px;
   height: 56px;
@@ -223,12 +230,12 @@
   box-shadow: none !important;
 }
 
+/* BIGGER ARTIST NAME (RUSSO ONE) */
 .section-artist-details h3 {
   font-family: 'Russo One', sans-serif;
   font-size: 2rem;
   color: var(--by-text);
   letter-spacing: 0.5px;
-  margin: 0;
 }
 
 .section-artist-details a {
@@ -254,6 +261,7 @@
   align-items: center;
 }
 
+/* Russo One font on Volume labels */
 .volume-pill {
   font-family: 'Russo One', sans-serif;
   font-size: 0.95rem;
@@ -297,6 +305,7 @@
   display: block;
 }
 
+/* Protection transparent shield */
 .card-shield-overlay {
   position: absolute;
   inset: 0;
@@ -362,6 +371,7 @@
   display: block;
 }
 
+/* Modal Navigation Arrows */
 .inspector-nav-btn {
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid var(--by-border);
@@ -429,6 +439,7 @@
     flex-direction: column;
   }
 
+  /* Show Mobile Top Bar with Hamburger */
   .mobile-top-bar {
     display: flex;
     align-items: center;
@@ -456,6 +467,7 @@
     cursor: pointer;
   }
 
+  /* Active artist badge on top bar with round icon & Russo One font */
   .mobile-active-artist-wrap {
     display: flex;
     align-items: center;
@@ -479,6 +491,7 @@
     letter-spacing: 0.5px;
   }
 
+  /* Slide-out Drawer Sidebar for Mobile */
   .booyah-sidebar {
     position: fixed;
     top: 0;
@@ -538,6 +551,7 @@
     padding: 1rem 0.75rem 4rem;
   }
 
+  /* Scaled down cards for tablet / mobile */
   .card-wall-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.55rem;
