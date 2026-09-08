@@ -50,6 +50,12 @@
   }
 
   function initCardWall() {
+   ["booyahSidebar", "sidebarBackdrop", "booyahInspectorModal"].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) document.body.appendChild(el);
+  });
+  var topBar = document.querySelector(".mobile-top-bar");
+  if (topBar) document.body.appendChild(topBar);
     var sidebarList = document.getElementById("booyahArtistNavList");
     var wallSections = document.getElementById("booyahWallSections");
     if (!sidebarList || !wallSections) return;
