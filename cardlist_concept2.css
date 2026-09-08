@@ -535,7 +535,7 @@ body.booyah-modal-open {
     border-right: 2px solid rgba(0, 163, 255, 0.3);
     box-shadow: none !important;
     transform: translateX(-100%);
-    z-index: 999999 !important;
+    z-index: 999998;
     display: flex !important;
     visibility: hidden;
     pointer-events: none;
