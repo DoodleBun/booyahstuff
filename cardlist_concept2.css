@@ -246,11 +246,11 @@ body.booyah-modal-open {
 
 /* CLEAN BLACK BORDER */
 .section-artist-avatar {
-  width: 56px;
-  height: 56px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #000000;
+  border: 4px solid #000000;
   box-shadow: none !important;
 }
 
@@ -527,10 +527,10 @@ body.booyah-modal-open {
      fixed-with-offset rule above with plain top:0/left:0) */
   .booyah-sidebar {
     position: fixed;
-    top: 0;
+    top: 64px;
     left: 0;
     width: min(85vw, 320px);
-    height: 100vh;
+    height: calc(100vh - 64px);
     background: #0e101c !important;
     border-right: 2px solid rgba(0, 163, 255, 0.3);
     box-shadow: none !important;
