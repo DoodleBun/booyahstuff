@@ -73,16 +73,16 @@ body.booyah-modal-open {
 
 /* -------------------------------------------------------------
    LEFT SIDEBAR: ARTIST LIST (DESKTOP)
-   Only visible when viewing the Card Wall section (#cardlist)
    ------------------------------------------------------------- */
 .booyah-sidebar {
-  display: none !important; /* Hidden by default on all other pages/profiles */
   width: var(--by-sidebar-w);
   flex-shrink: 0;
+  /* Placed directly below the top banner (never over it, never behind it) */
   position: fixed;
   top: var(--by-banner-offset, var(--by-banner-h));
   left: max(0px, calc((100vw - var(--by-layout-max)) / 2));
   height: calc(100vh - var(--by-banner-offset, var(--by-banner-h)));
+  display: flex;
   flex-direction: column;
   background: rgba(14, 16, 28, 0.94);
   backdrop-filter: blur(16px);
@@ -91,11 +91,6 @@ body.booyah-modal-open {
   z-index: 100;
   padding: 1.5rem 0.85rem;
   transition: top 0.1s ease-out, height 0.1s ease-out;
-}
-
-/* Only display sidebar when inside #cardlist */
-body.booyah-cardlist-active .booyah-sidebar {
-  display: flex !important;
 }
 
 .sidebar-close-btn {
@@ -195,10 +190,9 @@ body.booyah-cardlist-active .booyah-sidebar {
 
 /* -------------------------------------------------------------
    MOBILE TOP BAR & BACKDROP
-   Only visible when viewing #cardlist
    ------------------------------------------------------------- */
 .mobile-top-bar {
-  display: none !important;
+  display: none;
 }
 
 .sidebar-backdrop {
@@ -238,7 +232,7 @@ body.booyah-cardlist-active .booyah-sidebar {
 .section-artist-banner {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1.25rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   margin-bottom: 1.25rem;
@@ -254,7 +248,7 @@ body.booyah-cardlist-active .booyah-sidebar {
 }
 
 .section-artist-avatar-link:hover {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
 /* CLEAN BLACK BORDER */
@@ -268,7 +262,7 @@ body.booyah-cardlist-active .booyah-sidebar {
   display: block;
 }
 
-/* CLICKABLE ARTIST NAME: BIGGER (~15% smaller than icon), NO SHADOW, CRISP BLACK OUTLINE */
+/* CLICKABLE ARTIST NAME: BIGGER, NO SHADOW, CRISP BLACK OUTLINE */
 .section-artist-name-link {
   text-decoration: none !important;
   color: inherit !important;
@@ -283,14 +277,12 @@ body.booyah-cardlist-active .booyah-sidebar {
 
 .section-artist-details h3 {
   font-family: 'Russo One', sans-serif;
-  /* Scaled to be ~15% smaller than the 120px icon height on desktop */
-  font-size: clamp(3rem, 5.5vw, 5.2rem);
-  line-height: 0.95;
+  font-size: 2.6rem; /* Bigger artist name */
   color: var(--by-text);
   letter-spacing: 0.5px;
-  text-transform: uppercase;
-  -webkit-text-stroke: 2.5px #000000; /* Bold black outline */
-  text-shadow: none !important;       /* Clean: no fuzzy shadow */
+  line-height: 1.15;
+  -webkit-text-stroke: 2px #000000; /* Crisp black outline */
+  text-shadow: none !important;    /* No shadow */
   transition: color 0.2s ease;
 }
 
@@ -324,7 +316,7 @@ body.booyah-cardlist-active .booyah-sidebar {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 200px;
+  min-height: 180px;
   margin: 1.5rem 0 2rem;
   background: transparent !important;
   border: none !important;
@@ -590,12 +582,9 @@ body.booyah-cardlist-active .booyah-sidebar {
     transition: margin-top 0.1s ease-out;
   }
 
-  /* Mobile Top Bar: Positioned below main header; only shown when inside #cardlist */
-  body.booyah-cardlist-active .mobile-top-bar {
-    display: flex !important;
-  }
-
+  /* Mobile Top Bar: Positioned below main header; hamburger on left, artist on right */
   .mobile-top-bar {
+    display: flex;
     align-items: center;
     justify-content: space-between; /* RESTORED: hamburger left, active artist right */
     position: fixed;
@@ -692,7 +681,7 @@ body.booyah-cardlist-active .booyah-sidebar {
     top: var(--by-banner-offset, 64px);
   }
 
-  /* Centered artist banner on mobile with large title and black outline */
+  /* Centered artist banner on mobile with larger title and black outline */
   .section-artist-banner {
     flex-direction: column;
     align-items: center;
@@ -714,8 +703,8 @@ body.booyah-cardlist-active .booyah-sidebar {
   }
 
   .section-artist-details h3 {
-    font-size: clamp(2.4rem, 8vw, 3.8rem); /* Big on mobile too, ~15% smaller than avatar */
-    -webkit-text-stroke: 2px #000000;
+    font-size: 2rem; /* Bigger on mobile */
+    -webkit-text-stroke: 1.5px #000000;
     text-shadow: none !important;
   }
 
