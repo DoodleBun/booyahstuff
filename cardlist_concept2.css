@@ -19,6 +19,8 @@
   --by-sidebar-w: 290px;       /* desktop sidebar width, referenced below */
   --by-layout-max: 1700px;     /* keep in sync with .booyah-layout max-width */
   --by-topbar-h: 4rem;         /* mobile top bar height, referenced below */
+  --by-banner-h: 64px;         /* site header/banner height */
+  --by-banner-offset: 64px;    /* dynamic banner bottom offset on scroll */
 }
 
 /* Base protection & transparent background - Smooth, non-blocking scroll */
@@ -75,17 +77,11 @@ body.booyah-modal-open {
 .booyah-sidebar {
   width: var(--by-sidebar-w);
   flex-shrink: 0;
-  /* FIX: Carrd wraps embedded sections in containers that can break
-     `position: sticky` (ancestor overflow/transform), which made the
-     sidebar scroll away with the page. `position: fixed` pins it to the
-     viewport regardless of what Carrd does around it. The left offset
-     re-centers it under the same max-width the layout uses, so it still
-     lines up with the content on wide screens instead of hugging the
-     browser edge. */
+  /* Placed directly below the top banner (never over it, never behind it) */
   position: fixed;
-  top: 0;
+  top: var(--by-banner-offset, var(--by-banner-h));
   left: max(0px, calc((100vw - var(--by-layout-max)) / 2));
-  height: 100vh;
+  height: calc(100vh - var(--by-banner-offset, var(--by-banner-h)));
   display: flex;
   flex-direction: column;
   background: rgba(14, 16, 28, 0.94);
@@ -94,6 +90,7 @@ body.booyah-modal-open {
   border-right: 1px solid var(--by-border);
   z-index: 100;
   padding: 1.5rem 0.85rem;
+  transition: top 0.1s ease-out, height 0.1s ease-out;
 }
 
 .sidebar-close-btn {
@@ -221,9 +218,6 @@ body.booyah-modal-open {
    ------------------------------------------------------------- */
 .booyah-main-wall {
   flex: 1;
-  /* FIX: the sidebar is now `position: fixed`, so it no longer takes up
-     space as a flex sibling. This margin reserves that space back so
-     the cards start to the right of the sidebar instead of under it. */
   margin-left: var(--by-sidebar-w);
   padding: 1.5rem 2rem 5rem;
   min-width: 0;
@@ -296,6 +290,102 @@ body.booyah-modal-open {
   border-radius: 6px;
   text-transform: uppercase;
   letter-spacing: 0.75px;
+}
+
+/* -------------------------------------------------------------
+   TINY ARTIST LOADING SCREEN
+   ------------------------------------------------------------- */
+.artist-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  margin: 1.25rem 0 2rem;
+  background: rgba(14, 16, 28, 0.65);
+  border: 1.5px dashed rgba(0, 163, 255, 0.35);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.artist-loader.fade-out {
+  opacity: 0;
+  transform: scale(0.97);
+  pointer-events: none;
+}
+
+.artist-loader-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.artist-loader-logo {
+  width: 92px;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 14px rgba(0, 163, 255, 0.5));
+  animation: booyah-logo-float 1.6s ease-in-out infinite;
+}
+
+.artist-loader-text {
+  font-family: 'Russo One', sans-serif;
+  font-size: 1.2rem;
+  color: var(--by-yellow);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+  animation: booyah-text-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes booyah-logo-float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-7px) scale(1.04);
+  }
+}
+
+@keyframes booyah-text-pulse {
+  0%, 100% {
+    opacity: 0.85;
+    color: var(--by-yellow);
+  }
+  50% {
+    opacity: 1;
+    color: #FFFFFF;
+    text-shadow: 0 0 14px rgba(255, 229, 0, 0.85);
+  }
+}
+
+.artist-cards-container {
+  transition: opacity 0.35s ease;
+}
+
+.artist-cards-container.is-loading {
+  display: none;
+}
+
+.artist-cards-container.fade-in {
+  animation: booyah-cards-fade-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes booyah-cards-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* -------------------------------------------------------------
@@ -461,8 +551,6 @@ body.booyah-modal-open {
 @media (max-width: 900px) {
   .booyah-layout {
     flex-direction: column;
-    /* FIX: reserve space for the now `fixed` mobile top bar so it
-       doesn't cover the first row of cards. */
     margin-top: var(--by-topbar-h);
   }
 
@@ -471,8 +559,6 @@ body.booyah-modal-open {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    /* FIX: same sticky -> fixed swap as the desktop sidebar, for the
-       same reason (Carrd's wrapper can break `position: sticky`). */
     position: fixed;
     top: 0;
     left: 0;
@@ -523,14 +609,13 @@ body.booyah-modal-open {
     letter-spacing: 0.5px;
   }
 
-  /* Slide-out Drawer Sidebar for Mobile (overrides the desktop
-     fixed-with-offset rule above with plain top:0/left:0) */
+  /* Slide-out Drawer Sidebar for Mobile */
   .booyah-sidebar {
     position: fixed;
-    top: 64px;
+    top: var(--by-banner-offset, 64px);
     left: 0;
     width: min(85vw, 320px);
-    height: calc(100vh - 64px);
+    height: calc(100vh - var(--by-banner-offset, 64px));
     background: #0e101c !important;
     border-right: 2px solid rgba(0, 163, 255, 0.3);
     box-shadow: none !important;
@@ -539,7 +624,7 @@ body.booyah-modal-open {
     display: flex !important;
     visibility: hidden;
     pointer-events: none;
-    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.3s;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.3s, top 0.1s ease-out, height 0.1s ease-out;
   }
 
   .booyah-sidebar.open {
@@ -581,8 +666,6 @@ body.booyah-modal-open {
   }
 
   .booyah-main-wall {
-    /* FIX: reset the desktop fixed-sidebar offset — the mobile sidebar
-       is an overlay drawer, not a flow sibling, so it needs no gutter. */
     margin-left: 0;
     padding: 1rem 0.75rem 4rem;
   }
