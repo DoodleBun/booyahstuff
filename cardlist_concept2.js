@@ -56,6 +56,29 @@
     return idx !== -1 ? artist.profileUrl.substring(idx) : "#" + slugify(artist.name);
   }
 
+  // Check if current view is #cardlist; if not, hide sidebar completely!
+  function updateCardlistActiveState() {
+    var hash = (window.location.hash || "").toLowerCase();
+    var cardlistSection = document.getElementById("cardlist-section");
+
+    var isCardlist = false;
+    if (cardlistSection) {
+      var isHidden = cardlistSection.style.display === "none" || cardlistSection.classList.contains("inactive");
+      var isExplicitActive = cardlistSection.classList.contains("active");
+      isCardlist = (!isHidden && isExplicitActive) || hash === "#cardlist";
+    } else {
+      isCardlist = hash === "#cardlist" || hash === "" || hash.indexOf("cardlist") !== -1;
+    }
+
+    if (isCardlist) {
+      document.body.classList.add("booyah-cardlist-active");
+      updateBannerOffset();
+    } else {
+      document.body.classList.remove("booyah-cardlist-active");
+      closeMobileSidebar();
+    }
+  }
+
   // Dynamically calculate and position elements below the main website header
   function updateBannerOffset() {
     var header = document.getElementById("booyah-header");
@@ -77,15 +100,12 @@
     var listRect = list.getBoundingClientRect();
     var itemRect = activeItem.getBoundingClientRect();
 
-    // If item reaches near bottom of visible list, scroll down to keep it in view
     if (itemRect.bottom > listRect.bottom - 24) {
       list.scrollBy({
         top: itemRect.bottom - listRect.bottom + 48,
         behavior: "smooth"
       });
-    }
-    // If item reaches near top of visible list, scroll up to keep it in view
-    else if (itemRect.top < listRect.top + 24) {
+    } else if (itemRect.top < listRect.top + 24) {
       list.scrollBy({
         top: itemRect.top - listRect.top - 48,
         behavior: "smooth"
@@ -121,6 +141,17 @@
     window.addEventListener("scroll", updateBannerOffset, { passive: true });
     window.addEventListener("resize", updateBannerOffset, { passive: true });
 
+    // Active state tracker (Hides sidebar immediately when navigating away to any profile or page)
+    updateCardlistActiveState();
+    window.addEventListener("hashchange", updateCardlistActiveState);
+    window.addEventListener("popstate", updateCardlistActiveState);
+
+    var cardlistSection = document.getElementById("cardlist-section");
+    if (cardlistSection && window.MutationObserver) {
+      var observer = new MutationObserver(updateCardlistActiveState);
+      observer.observe(cardlistSection, { attributes: true, attributeFilter: ["class", "style"] });
+    }
+
     // Set initial mobile active artist avatar & name
     updateMobileActiveHeader(ARTISTS[0]);
 
@@ -143,7 +174,7 @@
         '</div>';
 
       navBtn.addEventListener("click", function () {
-        loadArtistGradual(artist); // Start loading this artist immediately if clicked
+        loadArtistGradual(artist);
         var targetSection = document.getElementById(secId);
         if (targetSection) {
           targetSection.scrollIntoView({ behavior: "smooth" });
@@ -153,7 +184,7 @@
       });
       sidebarList.appendChild(navBtn);
 
-      // 2. Card Wall Section with Clickable Artist Name (Profile Link) & Glowing Loader
+      // 2. Card Wall Section with HUGE Clickable Artist Name (Profile Link) & Glowing Loader
       var section = document.createElement("section");
       section.className = "booyah-artist-section";
       section.id = secId;
@@ -178,9 +209,20 @@
         '</div>' +
         '<div class="artist-cards-container is-loading" id="cards-' + secId + '"></div>';
 
+      // Immediately hide sidebar if artist name or avatar is clicked
+      var avatarLink = section.querySelector(".section-artist-avatar-link");
+      var nameLink = section.querySelector(".section-artist-name-link");
+      [avatarLink, nameLink].forEach(function (l) {
+        if (l) {
+          l.addEventListener("click", function () {
+            document.body.classList.remove("booyah-cardlist-active");
+          });
+        }
+      });
+
       var cardsContainer = section.querySelector("#cards-" + secId);
 
-      // Volumes & Raw Cards (use data-src so images are NEVER requested before preloading finishes)
+      // Volumes & Raw Cards (use data-src so browser never fetches before preloading finishes)
       if (artist.volumes && artist.volumes.length) {
         artist.volumes.forEach(function (vol) {
           var volHeading = document.createElement("div");
@@ -251,7 +293,7 @@
           }
         });
       },
-      { rootMargin: "300px 0px 150px 0px", threshold: 0 }
+      { rootMargin: "250px 0px 100px 0px", threshold: 0 }
     );
 
     document.querySelectorAll(".booyah-artist-section").forEach(function (sec) {
@@ -259,78 +301,75 @@
     });
   }
 
-  // Preloads 100% of cards for an artist; only reveals when every single image is completely in memory
+  // Preloads 100% of cards for an artist, decoding them into memory before revealing
   function loadArtistGradual(artist) {
     if (!artist) return;
     var secId = slugify(artist.name);
-    if (artistLoadStatus[secId]) return; // already loading or loaded
+    if (artistLoadStatus[secId]) return;
     artistLoadStatus[secId] = "loading";
 
     var loaderEl = document.getElementById("loader-" + secId);
     var cardsContainer = document.getElementById("cards-" + secId);
     if (!cardsContainer) return;
 
-    var urls = [];
-    if (artist.volumes && artist.volumes.length) {
-      artist.volumes.forEach(function (vol) {
-        for (var i = 1; i <= vol.n; i++) {
-          urls.push(CARD_BASE + vol.id + "_" + pad(i) + ".png");
-        }
-      });
-    }
-
-    if (urls.length === 0) {
-      artistLoadStatus[secId] = "done";
+    var cardImgs = cardsContainer.querySelectorAll(".booyah-card img");
+    if (cardImgs.length === 0) {
       revealArtistCards(loaderEl, cardsContainer);
       return;
     }
 
-    var loadedCount = 0;
-    var totalCount = urls.length;
-    var isRevealed = false;
+    var total = cardImgs.length;
+    var loaded = 0;
+    var isDone = false;
 
     function finish() {
-      if (isRevealed) return;
-      isRevealed = true;
+      if (isDone) return;
+      isDone = true;
       artistLoadStatus[secId] = "done";
       revealArtistCards(loaderEl, cardsContainer);
     }
 
-    // Generous fallback timeout (20s) so slower connections don't prematurely hide the loader
-    var timeout = setTimeout(finish, 20000);
+    // Generous fallback timeout (25s) so slower connections don't prematurely drop loader
+    var timer = setTimeout(finish, 25000);
 
-    function onImageReady() {
-      loadedCount++;
-      if (loadedCount >= totalCount) {
-        clearTimeout(timeout);
+    function onCardReady() {
+      loaded++;
+      if (loaded >= total) {
+        clearTimeout(timer);
         finish();
       }
     }
 
-    // Preload into memory first
-    urls.forEach(function (url) {
-      var img = new Image();
-      img.onload = onImageReady;
-      img.onerror = onImageReady;
-      img.src = url;
+    cardImgs.forEach(function (img) {
+      var src = img.getAttribute("data-src");
+      if (!src) {
+        onCardReady();
+        return;
+      }
+
+      var pre = new Image();
+      pre.onload = function () {
+        img.src = src;
+        img.removeAttribute("data-src");
+        if ('decode' in img) {
+          img.decode().then(onCardReady).catch(onCardReady);
+        } else {
+          onCardReady();
+        }
+      };
+      pre.onerror = function () {
+        img.src = src;
+        img.removeAttribute("data-src");
+        onCardReady();
+      };
+      pre.src = src;
     });
   }
 
-  // Once 100% of images are confirmed in memory, set src and fade in with ZERO stutter
+  // Once 100% of images are confirmed fully decoded in memory, smoothly reveal cards
   function revealArtistCards(loaderEl, cardsContainer) {
     if (!cardsContainer) return;
 
-    // Apply cached sources to all DOM images
-    var imgs = cardsContainer.querySelectorAll("img[data-src]");
-    imgs.forEach(function (img) {
-      var realSrc = img.getAttribute("data-src");
-      if (realSrc) {
-        img.src = realSrc;
-        img.removeAttribute("data-src");
-      }
-    });
-
-    // Allow browser compositor to paint cached bitmaps before dropping the loader
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
         if (loaderEl) {
@@ -339,7 +378,7 @@
             loaderEl.style.display = "none";
             cardsContainer.classList.remove("is-loading");
             cardsContainer.classList.add("fade-in");
-          }, 200);
+          }, 220);
         } else {
           cardsContainer.classList.remove("is-loading");
           cardsContainer.classList.add("fade-in");
