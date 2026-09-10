@@ -50,7 +50,7 @@
     return "sec-" + name.replace(/[^a-zA-Z0-9]/g, "");
   }
 
-  // Dynamically calculate and position the left sidebar below the website banner
+  // Dynamically calculate and position elements below the main website header
   function updateBannerOffset() {
     var header = document.getElementById("booyah-header");
     var offset = 64;
@@ -81,7 +81,14 @@
     allCards = [];
     artistLoadStatus = {};
 
-    // Initial banner offset check & listeners
+    // Remove "Artists Directory" text from burger menu header if present in HTML
+    var closeHeader = document.querySelector(".sidebar-close-btn");
+    if (closeHeader) {
+      var textSpans = closeHeader.querySelectorAll("span");
+      textSpans.forEach(function (s) { s.remove(); });
+    }
+
+    // Banner offset check & listeners
     updateBannerOffset();
     window.addEventListener("scroll", updateBannerOffset, { passive: true });
     window.addEventListener("resize", updateBannerOffset, { passive: true });
@@ -107,7 +114,6 @@
         '</div>';
 
       navBtn.addEventListener("click", function () {
-        loadArtist(artist);
         var targetSection = document.getElementById(secId);
         if (targetSection) {
           targetSection.scrollIntoView({ behavior: "smooth" });
@@ -117,7 +123,7 @@
       });
       sidebarList.appendChild(navBtn);
 
-      // 2. Card Wall Section with Tiny Loading Screen
+      // 2. Card Wall Section with Transparent Glowing Loader
       var section = document.createElement("section");
       section.className = "booyah-artist-section";
       section.id = secId;
@@ -141,7 +147,7 @@
 
       var cardsContainer = section.querySelector("#cards-" + secId);
 
-      // Volumes & Raw Cards
+      // Volumes & Cards
       if (artist.volumes && artist.volumes.length) {
         artist.volumes.forEach(function (vol) {
           var volHeading = document.createElement("div");
@@ -184,20 +190,25 @@
     });
 
     setupScrollObserver();
-    setupLazyLoadObserver();
     setupMobileDrawerEvents();
+
+    // Start preloading ALL artists until 100% complete with no stutter or half-loaded pictures
+    preloadAllArtists();
   }
 
-  // Preloads an artist's cards and removes the tiny loading screen once complete
-  function loadArtist(artist) {
+  // Preloads 100% of cards for an artist, keeping the loader screen visible until completely ready
+  function loadArtist(artist, onDone) {
     if (!artist) return;
     var secId = slugify(artist.name);
-    if (artistLoadStatus[secId]) return;
-    artistLoadStatus[secId] = true;
+    if (artistLoadStatus[secId] === "done") {
+      if (onDone) onDone();
+      return;
+    }
+    if (artistLoadStatus[secId] === "loading") return;
+    artistLoadStatus[secId] = "loading";
 
     var loaderEl = document.getElementById("loader-" + secId);
     var cardsContainer = document.getElementById("cards-" + secId);
-    if (!cardsContainer) return;
 
     var urls = [];
     if (artist.volumes && artist.volumes.length) {
@@ -209,7 +220,9 @@
     }
 
     if (urls.length === 0) {
+      artistLoadStatus[secId] = "done";
       revealCards(loaderEl, cardsContainer);
+      if (onDone) onDone();
       return;
     }
 
@@ -220,11 +233,13 @@
     function finish() {
       if (isRevealed) return;
       isRevealed = true;
+      artistLoadStatus[secId] = "done";
       revealCards(loaderEl, cardsContainer);
+      if (onDone) onDone();
     }
 
-    // Safety fallback: reveal after 7s if connection stalls
-    var timeout = setTimeout(finish, 7000);
+    // 12s safety timeout in case of dropped connection
+    var timeout = setTimeout(finish, 12000);
 
     function checkCardLoaded() {
       loadedCount++;
@@ -239,7 +254,7 @@
       img.onload = checkCardLoaded;
       img.onerror = checkCardLoaded;
       img.src = url;
-      if (img.complete) {
+      if (img.complete && img.naturalWidth > 0) {
         checkCardLoaded();
       }
     });
@@ -261,37 +276,43 @@
     }
   }
 
-  // Observer that loads artist cards as sections come near the viewport
-  function setupLazyLoadObserver() {
-    // Immediately load the first artist
+  // Preload all artists so everything loads to 100% without stuttering or half-loaded pictures
+  function preloadAllArtists() {
+    // 1. Immediately prioritize and load the first active artist
     if (ARTISTS.length > 0) {
       loadArtist(ARTISTS[0]);
     }
 
-    var sections = document.querySelectorAll(".booyah-artist-section");
-
-    if (!('IntersectionObserver' in window)) {
-      ARTISTS.forEach(loadArtist);
-      return;
+    // 2. Preload the remaining artists in a steady queue so bandwidth is maximized
+    var idx = 1;
+    function loadNext() {
+      if (idx < ARTISTS.length) {
+        var nextArtist = ARTISTS[idx++];
+        loadArtist(nextArtist, loadNext);
+      }
     }
+    setTimeout(loadNext, 100);
 
-    var loadObserver = new IntersectionObserver(
-      function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            var artistName = entry.target.getAttribute("data-artist-name");
-            var artist = ARTISTS.find(function (a) { return a.name === artistName; });
-            if (artist) loadArtist(artist);
-            loadObserver.unobserve(entry.target);
-          }
-        });
-      },
-      { rootMargin: "450px 0px 450px 0px", threshold: 0 }
-    );
+    // 3. If user scrolls to any artist before queue reaches them, load that artist immediately
+    if ('IntersectionObserver' in window) {
+      var loadObserver = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              var artistName = entry.target.getAttribute("data-artist-name");
+              var artist = ARTISTS.find(function (a) { return a.name === artistName; });
+              if (artist) loadArtist(artist);
+              loadObserver.unobserve(entry.target);
+            }
+          });
+        },
+        { rootMargin: "500px 0px 500px 0px", threshold: 0 }
+      );
 
-    sections.forEach(function (sec) {
-      loadObserver.observe(sec);
-    });
+      document.querySelectorAll(".booyah-artist-section").forEach(function (sec) {
+        loadObserver.observe(sec);
+      });
+    }
   }
 
   function updateMobileActiveHeader(artist) {
