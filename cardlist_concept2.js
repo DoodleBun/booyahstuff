@@ -40,6 +40,7 @@
 
   var allCards = [];
   var currentCardIdx = 0;
+  var artistLoadStatus = {};
 
   function pad(n) {
     return n < 10 ? "0" + n : "" + n;
@@ -49,13 +50,28 @@
     return "sec-" + name.replace(/[^a-zA-Z0-9]/g, "");
   }
 
+  // Dynamically calculate and position the left sidebar below the website banner
+  function updateBannerOffset() {
+    var header = document.getElementById("booyah-header");
+    var offset = 64;
+    if (header) {
+      var rect = header.getBoundingClientRect();
+      offset = Math.max(0, Math.round(rect.bottom));
+    } else {
+      var scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+      offset = Math.max(0, 64 - scrollY);
+    }
+    document.documentElement.style.setProperty("--by-banner-offset", offset + "px");
+  }
+
   function initCardWall() {
-   ["booyahSidebar", "sidebarBackdrop", "booyahInspectorModal"].forEach(function (id) {
-    var el = document.getElementById(id);
-    if (el) document.body.appendChild(el);
-  });
-  var topBar = document.querySelector(".mobile-top-bar");
-  if (topBar) document.body.appendChild(topBar);
+    ["booyahSidebar", "sidebarBackdrop", "booyahInspectorModal"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) document.body.appendChild(el);
+    });
+    var topBar = document.querySelector(".mobile-top-bar");
+    if (topBar) document.body.appendChild(topBar);
+
     var sidebarList = document.getElementById("booyahArtistNavList");
     var wallSections = document.getElementById("booyahWallSections");
     if (!sidebarList || !wallSections) return;
@@ -63,6 +79,12 @@
     sidebarList.innerHTML = "";
     wallSections.innerHTML = "";
     allCards = [];
+    artistLoadStatus = {};
+
+    // Initial banner offset check & listeners
+    updateBannerOffset();
+    window.addEventListener("scroll", updateBannerOffset, { passive: true });
+    window.addEventListener("resize", updateBannerOffset, { passive: true });
 
     // Set initial mobile active artist avatar & name
     updateMobileActiveHeader(ARTISTS[0]);
@@ -71,7 +93,7 @@
       var totalCards = artist.volumes ? artist.volumes.reduce(function (sum, v) { return sum + (v.n || 0); }, 0) : 0;
       var secId = slugify(artist.name);
 
-      // 1. Sidebar Nav Item (With Card Count & Urbanist font on left sidebar)
+      // 1. Sidebar Nav Item
       var navBtn = document.createElement("button");
       navBtn.className = "artist-nav-item" + (index === 0 ? " active" : "");
       navBtn.setAttribute("data-target", secId);
@@ -85,6 +107,7 @@
         '</div>';
 
       navBtn.addEventListener("click", function () {
+        loadArtist(artist);
         var targetSection = document.getElementById(secId);
         if (targetSection) {
           targetSection.scrollIntoView({ behavior: "smooth" });
@@ -94,10 +117,11 @@
       });
       sidebarList.appendChild(navBtn);
 
-      // 2. Card Wall Section (Russo One font for artist heading)
+      // 2. Card Wall Section with Tiny Loading Screen
       var section = document.createElement("section");
       section.className = "booyah-artist-section";
       section.id = secId;
+      section.setAttribute("data-artist-name", artist.name);
 
       section.innerHTML =
         '<div class="section-artist-banner">' +
@@ -106,7 +130,16 @@
             '<h3>' + artist.name + '</h3>' +
             '<a href="' + artist.profileUrl + '" target="_blank" rel="noopener">View Artist Profile ↗</a>' +
           '</div>' +
-        '</div>';
+        '</div>' +
+        '<div class="artist-loader" id="loader-' + secId + '">' +
+          '<div class="artist-loader-inner">' +
+            '<img class="artist-loader-logo" src="' + (ICON_BASE + 'BooyahLogo2.png') + '" alt="Booyah! Logo">' +
+            '<span class="artist-loader-text">Loading...</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="artist-cards-container is-loading" id="cards-' + secId + '"></div>';
+
+      var cardsContainer = section.querySelector("#cards-" + secId);
 
       // Volumes & Raw Cards
       if (artist.volumes && artist.volumes.length) {
@@ -114,7 +147,7 @@
           var volHeading = document.createElement("div");
           volHeading.className = "volume-heading";
           volHeading.innerHTML = '<span class="volume-pill">' + vol.label + '</span>';
-          section.appendChild(volHeading);
+          cardsContainer.appendChild(volHeading);
 
           var grid = document.createElement("div");
           grid.className = "card-wall-grid";
@@ -129,7 +162,7 @@
             cardEl.setAttribute("data-index", cardIdx);
 
             cardEl.innerHTML =
-              '<img src="' + cardUrl + '" alt="' + artist.name + ' Card #' + i + '" loading="lazy">' +
+              '<img src="' + cardUrl + '" alt="' + artist.name + ' Card #' + i + '">' +
               '<div class="card-shield-overlay"></div>';
 
             cardEl.addEventListener("click", (function (idx) {
@@ -143,7 +176,7 @@
 
             grid.appendChild(cardEl);
           }
-          section.appendChild(grid);
+          cardsContainer.appendChild(grid);
         });
       }
 
@@ -151,7 +184,114 @@
     });
 
     setupScrollObserver();
+    setupLazyLoadObserver();
     setupMobileDrawerEvents();
+  }
+
+  // Preloads an artist's cards and removes the tiny loading screen once complete
+  function loadArtist(artist) {
+    if (!artist) return;
+    var secId = slugify(artist.name);
+    if (artistLoadStatus[secId]) return;
+    artistLoadStatus[secId] = true;
+
+    var loaderEl = document.getElementById("loader-" + secId);
+    var cardsContainer = document.getElementById("cards-" + secId);
+    if (!cardsContainer) return;
+
+    var urls = [];
+    if (artist.volumes && artist.volumes.length) {
+      artist.volumes.forEach(function (vol) {
+        for (var i = 1; i <= vol.n; i++) {
+          urls.push(CARD_BASE + vol.id + "_" + pad(i) + ".png");
+        }
+      });
+    }
+
+    if (urls.length === 0) {
+      revealCards(loaderEl, cardsContainer);
+      return;
+    }
+
+    var loadedCount = 0;
+    var totalCount = urls.length;
+    var isRevealed = false;
+
+    function finish() {
+      if (isRevealed) return;
+      isRevealed = true;
+      revealCards(loaderEl, cardsContainer);
+    }
+
+    // Safety fallback: reveal after 7s if connection stalls
+    var timeout = setTimeout(finish, 7000);
+
+    function checkCardLoaded() {
+      loadedCount++;
+      if (loadedCount >= totalCount) {
+        clearTimeout(timeout);
+        finish();
+      }
+    }
+
+    urls.forEach(function (url) {
+      var img = new Image();
+      img.onload = checkCardLoaded;
+      img.onerror = checkCardLoaded;
+      img.src = url;
+      if (img.complete) {
+        checkCardLoaded();
+      }
+    });
+  }
+
+  function revealCards(loaderEl, cardsContainer) {
+    if (loaderEl) {
+      loaderEl.classList.add("fade-out");
+      setTimeout(function () {
+        loaderEl.style.display = "none";
+        if (cardsContainer) {
+          cardsContainer.classList.remove("is-loading");
+          cardsContainer.classList.add("fade-in");
+        }
+      }, 220);
+    } else if (cardsContainer) {
+      cardsContainer.classList.remove("is-loading");
+      cardsContainer.classList.add("fade-in");
+    }
+  }
+
+  // Observer that loads artist cards as sections come near the viewport
+  function setupLazyLoadObserver() {
+    // Immediately load the first artist
+    if (ARTISTS.length > 0) {
+      loadArtist(ARTISTS[0]);
+    }
+
+    var sections = document.querySelectorAll(".booyah-artist-section");
+
+    if (!('IntersectionObserver' in window)) {
+      ARTISTS.forEach(loadArtist);
+      return;
+    }
+
+    var loadObserver = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            var artistName = entry.target.getAttribute("data-artist-name");
+            var artist = ARTISTS.find(function (a) { return a.name === artistName; });
+            if (artist) loadArtist(artist);
+            loadObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: "450px 0px 450px 0px", threshold: 0 }
+    );
+
+    sections.forEach(function (sec) {
+      loadObserver.observe(sec);
+    });
   }
 
   function updateMobileActiveHeader(artist) {
@@ -183,7 +323,7 @@
     });
   }
 
-  // Active section spy on scroll (CLEAN - NO scrollIntoView CALLS TO PREVENT JITTER/LOCKS)
+  // Active section spy on scroll
   function setupScrollObserver() {
     var sections = document.querySelectorAll(".booyah-artist-section");
     var navItems = document.querySelectorAll(".artist-nav-item");
@@ -267,7 +407,7 @@
     if (backdrop) backdrop.classList.remove("active");
   };
 
-  // Zoomed Lightbox Inspector (+20% bigger, Arrows Navigation, 3D tilt)
+  // Zoomed Lightbox Inspector
   var modal = document.getElementById("booyahInspectorModal");
   var inspectorInner = document.getElementById("booyahInspectorInner");
   var inspectorImg = document.getElementById("booyahInspectorImg");
@@ -299,9 +439,6 @@
     if (inspectorInner) inspectorInner.style.transform = "";
   }
 
-  // Locks/unlocks page scroll while the inspector is open, so the only
-  // thing the user can scroll/click is the zoomed card itself and its
-  // own close/arrow controls — the card wall behind it can't be touched.
   function lockBackgroundScroll() {
     document.documentElement.classList.add("booyah-modal-open");
     document.body.classList.add("booyah-modal-open");
