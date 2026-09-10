@@ -397,3 +397,160 @@
                 updateMobileActiveHeader({ name: artistName, icon: artistIcon });
                 // Automatically scroll the sidebar list to keep the highlighted artist in view
                 scrollNavIntoView(item);
+              } else {
+                item.classList.remove("active");
+              }
+            });
+          }
+        });
+      },
+      { rootMargin: "-20% 0px -60% 0px", threshold: 0 }
+    );
+
+    sections.forEach(function (sec) {
+      observer.observe(sec);
+    });
+  }
+
+  // Mobile Hamburger Drawer Setup
+  function setupMobileDrawerEvents() {
+    var btn = document.getElementById("mobileHamburgerBtn");
+    var backdrop = document.getElementById("sidebarBackdrop");
+
+    if (btn) {
+      btn.onclick = function (e) {
+        if (e) e.stopPropagation();
+        toggleMobileSidebar();
+      };
+    }
+    if (backdrop) {
+      backdrop.onclick = function (e) {
+        if (e) e.stopPropagation();
+        closeMobileSidebar();
+      };
+    }
+  }
+
+  window.toggleMobileSidebar = function () {
+    var sidebar = document.getElementById("booyahSidebar");
+    if (sidebar && sidebar.classList.contains("open")) {
+      closeMobileSidebar();
+    } else {
+      openMobileSidebar();
+    }
+  };
+
+  window.openMobileSidebar = function () {
+    var sidebar = document.getElementById("booyahSidebar");
+    var backdrop = document.getElementById("sidebarBackdrop");
+
+    if (sidebar) sidebar.classList.add("open");
+    if (backdrop) backdrop.classList.add("active");
+  };
+
+  window.closeMobileSidebar = function () {
+    var sidebar = document.getElementById("booyahSidebar");
+    var backdrop = document.getElementById("sidebarBackdrop");
+
+    if (sidebar) sidebar.classList.remove("open");
+    if (backdrop) backdrop.classList.remove("active");
+  };
+
+  // Zoomed Lightbox Inspector
+  var modal = document.getElementById("booyahInspectorModal");
+  var inspectorInner = document.getElementById("booyahInspectorInner");
+  var inspectorImg = document.getElementById("booyahInspectorImg");
+  var inspectorContainer = document.querySelector(".inspector-card-container");
+
+  if (inspectorContainer && inspectorInner) {
+    inspectorContainer.addEventListener("mousemove", function (e) {
+      var rect = inspectorContainer.getBoundingClientRect();
+      var x = e.clientX - rect.left;
+      var y = e.clientY - rect.top;
+      var cx = rect.width / 2;
+      var cy = rect.height / 2;
+      var rotateX = ((y - cy) / cy) * -12;
+      var rotateY = ((x - cx) / cx) * 12;
+      inspectorInner.style.transform = "perspective(1000px) rotateX(" + rotateX.toFixed(2) + "deg) rotateY(" + rotateY.toFixed(2) + "deg) scale(1.02)";
+    });
+
+    inspectorContainer.addEventListener("mouseleave", function () {
+      inspectorInner.style.transform = "";
+    });
+  }
+
+  function updateInspectorCard(idx) {
+    if (!inspectorImg || allCards.length === 0) return;
+    if (idx < 0) idx = allCards.length - 1;
+    if (idx >= allCards.length) idx = 0;
+    currentCardIdx = idx;
+    inspectorImg.src = allCards[currentCardIdx];
+    if (inspectorInner) inspectorInner.style.transform = "";
+  }
+
+  function lockBackgroundScroll() {
+    document.documentElement.classList.add("booyah-modal-open");
+    document.body.classList.add("booyah-modal-open");
+  }
+
+  function unlockBackgroundScroll() {
+    document.documentElement.classList.remove("booyah-modal-open");
+    document.body.classList.remove("booyah-modal-open");
+  }
+
+  window.openCardInspector = function (idx) {
+    if (!modal || !inspectorImg) return;
+    if (typeof idx === "string") {
+      idx = allCards.indexOf(idx);
+      if (idx === -1) idx = 0;
+    }
+    updateInspectorCard(idx);
+    modal.classList.add("open");
+    lockBackgroundScroll();
+  };
+
+  window.closeCardInspector = function (e) {
+    if (!modal) return;
+    if (!e || e.target === modal || e.target.classList.contains("inspector-close-btn")) {
+      modal.classList.remove("open");
+      unlockBackgroundScroll();
+    }
+  };
+
+  window.prevCard = function (e) {
+    if (e) e.stopPropagation();
+    updateInspectorCard(currentCardIdx - 1);
+  };
+
+  window.nextCard = function (e) {
+    if (e) e.stopPropagation();
+    updateInspectorCard(currentCardIdx + 1);
+  };
+
+  // Keyboard navigation (Arrow keys & Escape)
+  document.addEventListener("keydown", function (e) {
+    if (!modal || !modal.classList.contains("open")) return;
+    if (e.key === "ArrowLeft") {
+      window.prevCard();
+    } else if (e.key === "ArrowRight") {
+      window.nextCard();
+    } else if (e.key === "Escape") {
+      window.closeCardInspector();
+    }
+  });
+
+  // DRM & Right-click protection
+  document.addEventListener("contextmenu", function (e) {
+    if (e.target.closest(".booyah-card") || e.target.closest(".inspector-card-container")) {
+      e.preventDefault();
+      return false;
+    }
+  });
+
+  // Init on DOM ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initCardWall);
+  } else {
+    initCardWall();
+  }
+})();
