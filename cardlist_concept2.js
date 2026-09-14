@@ -114,7 +114,7 @@
   }
 
   function initCardWall() {
-    ["booyahSidebar", "sidebarBackdrop", "booyahInspectorModal"].forEach(function (id) {
+    ["sidebarBackdrop", "booyahInspectorModal"].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) document.body.appendChild(el);
     });
@@ -158,7 +158,6 @@
     ARTISTS.forEach(function (artist, index) {
       var totalCards = artist.volumes ? artist.volumes.reduce(function (sum, v) { return sum + (v.n || 0); }, 0) : 0;
       var secId = slugify(artist.name);
-      var profileHash = getArtistHash(artist);
 
       // 1. Sidebar Nav Item
       var navBtn = document.createElement("button");
@@ -192,11 +191,11 @@
 
       section.innerHTML =
         '<div class="section-artist-banner">' +
-          '<a href="' + profileHash + '" class="section-artist-avatar-link" title="View ' + artist.name + ' profile">' +
+          '<a href="' + artist.profileUrl + '" target="_blank" rel="noopener noreferrer" class="section-artist-avatar-link" title="View ' + artist.name + ' profile">' +
             '<img class="section-artist-avatar" src="' + (ICON_BASE + artist.icon) + '" alt="' + artist.name + '">' +
           '</a>' +
           '<div class="section-artist-details">' +
-            '<a href="' + profileHash + '" class="section-artist-name-link" title="View ' + artist.name + ' profile">' +
+            '<a href="' + artist.profileUrl + '" target="_blank" rel="noopener noreferrer" class="section-artist-name-link" title="View ' + artist.name + ' profile">' +
               '<h3>' + artist.name + '</h3>' +
             '</a>' +
           '</div>' +
@@ -208,17 +207,6 @@
           '</div>' +
         '</div>' +
         '<div class="artist-cards-container is-loading" id="cards-' + secId + '"></div>';
-
-      // Immediately hide sidebar if artist name or avatar is clicked
-      var avatarLink = section.querySelector(".section-artist-avatar-link");
-      var nameLink = section.querySelector(".section-artist-name-link");
-      [avatarLink, nameLink].forEach(function (l) {
-        if (l) {
-          l.addEventListener("click", function () {
-            document.body.classList.remove("booyah-cardlist-active");
-          });
-        }
-      });
 
       var cardsContainer = section.querySelector("#cards-" + secId);
 
