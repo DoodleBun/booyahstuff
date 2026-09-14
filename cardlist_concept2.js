@@ -50,12 +50,6 @@
     return "sec-" + name.replace(/[^a-zA-Z0-9]/g, "");
   }
 
-  function getArtistHash(artist) {
-    if (!artist || !artist.profileUrl) return "#";
-    var idx = artist.profileUrl.indexOf("#");
-    return idx !== -1 ? artist.profileUrl.substring(idx) : "#" + slugify(artist.name);
-  }
-
   // Check if current view is #cardlist; if not, hide sidebar completely!
   function updateCardlistActiveState() {
     var hash = (window.location.hash || "").toLowerCase();
@@ -183,7 +177,7 @@
       });
       sidebarList.appendChild(navBtn);
 
-      // 2. Card Wall Section with HUGE Clickable Artist Name (Profile Link) & Glowing Loader
+      // 2. Card Wall Section with Artist Name, Profile Link & Glowing Loader
       var section = document.createElement("section");
       section.className = "booyah-artist-section";
       section.id = secId;
@@ -191,13 +185,10 @@
 
       section.innerHTML =
         '<div class="section-artist-banner">' +
-          '<a href="' + artist.profileUrl + '" target="_blank" rel="noopener noreferrer" class="section-artist-avatar-link" title="View ' + artist.name + ' profile">' +
-            '<img class="section-artist-avatar" src="' + (ICON_BASE + artist.icon) + '" alt="' + artist.name + '">' +
-          '</a>' +
+          '<img class="section-artist-avatar" src="' + (ICON_BASE + artist.icon) + '" alt="' + artist.name + '">' +
           '<div class="section-artist-details">' +
-            '<a href="' + artist.profileUrl + '" target="_blank" rel="noopener noreferrer" class="section-artist-name-link" title="View ' + artist.name + ' profile">' +
-              '<h3>' + artist.name + '</h3>' +
-            '</a>' +
+            '<h3>' + artist.name + '</h3>' +
+            '<a href="' + artist.profileUrl + '" target="_blank" rel="noopener noreferrer">View Artist Profile ↗</a>' +
           '</div>' +
         '</div>' +
         '<div class="artist-loader" id="loader-' + secId + '">' +
