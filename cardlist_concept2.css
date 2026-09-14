@@ -16,6 +16,11 @@
   --by-muted: #8E95A5;
   --by-border: rgba(255, 255, 255, 0.12);
   --by-sidebar-bg: #0e101c;
+  --by-sidebar-w: 290px;       /* desktop sidebar width, referenced below */
+  --by-layout-max: 1700px;     /* keep in sync with .booyah-layout max-width */
+  --by-topbar-h: 4.2rem;       /* mobile top bar height, referenced below */
+  --by-banner-h: 64px;         /* site header/banner height */
+  --by-banner-offset: 64px;    /* dynamic banner bottom offset on scroll */
 }
 
 /* Base protection & transparent background - Smooth, non-blocking scroll */
@@ -32,6 +37,15 @@ body {
   line-height: 1.4;
   -webkit-user-select: none;
   user-select: none;
+}
+
+/* Card inspector open: lock the page so only the zoomed card can be
+   interacted with (no background scroll/click leaking through). Toggled
+   by JS via document.documentElement/body.classList. */
+html.booyah-modal-open,
+body.booyah-modal-open {
+  overflow: hidden !important;
+  height: 100%;
 }
 
 .booyah-cardwall-root {
@@ -51,7 +65,7 @@ body {
 /* App Layout */
 .booyah-layout {
   display: flex;
-  max-width: 1700px;
+  max-width: var(--by-layout-max);
   margin: 0 auto;
   min-height: 100vh;
   position: relative;
@@ -59,14 +73,16 @@ body {
 
 /* -------------------------------------------------------------
    LEFT SIDEBAR: ARTIST LIST (DESKTOP)
+   Only visible when viewing the Card Wall section (#cardlist)
    ------------------------------------------------------------- */
 .booyah-sidebar {
-  width: 290px;
+  display: none !important; /* Hidden by default on all other pages/profiles */
+  width: var(--by-sidebar-w);
   flex-shrink: 0;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  display: flex;
+  position: fixed;
+  top: var(--by-banner-offset, var(--by-banner-h));
+  left: max(0px, calc((100vw - var(--by-layout-max)) / 2));
+  height: calc(100vh - var(--by-banner-offset, var(--by-banner-h)));
   flex-direction: column;
   background: rgba(14, 16, 28, 0.94);
   backdrop-filter: blur(16px);
@@ -74,10 +90,16 @@ body {
   border-right: 1px solid var(--by-border);
   z-index: 100;
   padding: 1.5rem 0.85rem;
+  transition: top 0.1s ease-out, height 0.1s ease-out;
+}
+
+/* Only display sidebar when inside #cardlist */
+body.booyah-cardlist-active .booyah-sidebar {
+  display: flex !important;
 }
 
 .sidebar-close-btn {
-  display: none;
+  display: none !important;
 }
 
 .booyah-artist-list {
@@ -150,7 +172,7 @@ body {
   min-width: 0;
 }
 
-/* BIGGER ARTIST NAME IN SIDEBAR */
+/* ARTIST NAME IN SIDEBAR */
 .artist-nav-name {
   font-weight: 800;
   font-size: 1.12rem;
@@ -173,9 +195,10 @@ body {
 
 /* -------------------------------------------------------------
    MOBILE TOP BAR & BACKDROP
+   Only visible when viewing #cardlist
    ------------------------------------------------------------- */
 .mobile-top-bar {
-  display: none;
+  display: none !important;
 }
 
 .sidebar-backdrop {
@@ -201,6 +224,7 @@ body {
    ------------------------------------------------------------- */
 .booyah-main-wall {
   flex: 1;
+  margin-left: var(--by-sidebar-w);
   padding: 1.5rem 2rem 5rem;
   min-width: 0;
 }
@@ -214,45 +238,64 @@ body {
 .section-artist-banner {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 1.5rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   margin-bottom: 1.25rem;
 }
 
+/* Avatar Link */
+.section-artist-avatar-link {
+  text-decoration: none;
+  display: inline-block;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.section-artist-avatar-link:hover {
+  transform: scale(1.05);
+}
+
 /* CLEAN BLACK BORDER */
 .section-artist-avatar {
-  width: 56px;
-  height: 56px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #000000;
+  border: 4px solid #000000;
   box-shadow: none !important;
+  display: block;
 }
 
-/* BIGGER ARTIST NAME (RUSSO ONE) */
+/* CLICKABLE ARTIST NAME: BIGGER (~15% smaller than icon), NO SHADOW, CRISP BLACK OUTLINE */
+.section-artist-name-link {
+  text-decoration: none !important;
+  color: inherit !important;
+  display: inline-block;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.section-artist-name-link:hover {
+  transform: scale(1.02);
+}
+
 .section-artist-details h3 {
   font-family: 'Russo One', sans-serif;
-  font-size: 2rem;
+  /* Scaled to be ~15% smaller than the 120px icon height on desktop */
+  font-size: clamp(3rem, 5.5vw, 5.2rem);
+  line-height: 0.95;
   color: var(--by-text);
   letter-spacing: 0.5px;
+  text-transform: uppercase;
+  -webkit-text-stroke: 2.5px #000000; /* Bold black outline */
+  text-shadow: none !important;       /* Clean: no fuzzy shadow */
+  transition: color 0.2s ease;
 }
 
-.section-artist-details a {
+.section-artist-name-link:hover h3 {
   color: var(--by-yellow);
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  margin-top: 2px;
-  transition: opacity 0.2s ease;
-}
-
-.section-artist-details a:hover {
-  opacity: 0.8;
-  text-decoration: underline;
 }
 
 .volume-heading {
@@ -272,6 +315,111 @@ body {
   border-radius: 6px;
   text-transform: uppercase;
   letter-spacing: 0.75px;
+}
+
+/* -------------------------------------------------------------
+   TINY ARTIST LOADING SCREEN (NO BACKGROUND, GLOWING LOGO + RUSSO ONE)
+   ------------------------------------------------------------- */
+.artist-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  margin: 1.5rem 0 2rem;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.artist-loader.fade-out {
+  opacity: 0;
+  transform: scale(0.97);
+  pointer-events: none;
+}
+
+.artist-loader-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem;
+  text-align: center;
+  background: transparent !important;
+}
+
+/* Glowing pulsating Booyah Logo */
+.artist-loader-logo {
+  width: 104px;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 14px rgba(0, 163, 255, 0.85)) drop-shadow(0 0 28px rgba(0, 163, 255, 0.45));
+  animation: booyah-logo-glow 2s ease-in-out infinite alternate;
+}
+
+/* "Loading..." text: Black outline, NO text shadow */
+.artist-loader-text {
+  font-family: 'Russo One', sans-serif;
+  font-size: 1.3rem;
+  color: var(--by-yellow);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  -webkit-text-stroke: 1.5px #000000;
+  text-shadow: none !important;
+  animation: booyah-text-pulse 2s ease-in-out infinite;
+}
+
+@keyframes booyah-logo-glow {
+  0% {
+    transform: scale(0.97);
+    filter: drop-shadow(0 0 8px rgba(0, 163, 255, 0.6)) drop-shadow(0 0 16px rgba(255, 229, 0, 0.3));
+  }
+  50% {
+    transform: scale(1.04);
+    filter: drop-shadow(0 0 20px rgba(0, 163, 255, 1)) drop-shadow(0 0 35px rgba(0, 163, 255, 0.65)) drop-shadow(0 0 45px rgba(255, 229, 0, 0.45));
+  }
+  100% {
+    transform: scale(0.97);
+    filter: drop-shadow(0 0 8px rgba(0, 163, 255, 0.6)) drop-shadow(0 0 16px rgba(255, 229, 0, 0.3));
+  }
+}
+
+@keyframes booyah-text-pulse {
+  0%, 100% {
+    opacity: 0.85;
+    color: var(--by-yellow);
+  }
+  50% {
+    opacity: 1;
+    color: #FFFFFF;
+  }
+}
+
+.artist-cards-container {
+  transition: opacity 0.35s ease;
+}
+
+.artist-cards-container.is-loading {
+  display: none !important;
+}
+
+.artist-cards-container.fade-in {
+  animation: booyah-cards-fade-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes booyah-cards-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* -------------------------------------------------------------
@@ -435,48 +583,64 @@ body {
 }
 
 @media (max-width: 900px) {
+  /* Layout accounts for the mobile top bar sitting below the main site header */
   .booyah-layout {
     flex-direction: column;
+    margin-top: calc(var(--by-banner-offset, 64px) + var(--by-topbar-h));
+    transition: margin-top 0.1s ease-out;
   }
 
-  /* Show Mobile Top Bar with Hamburger */
+  /* Mobile Top Bar: Positioned below main header; only shown when inside #cardlist */
+  body.booyah-cardlist-active .mobile-top-bar {
+    display: flex !important;
+  }
+
   .mobile-top-bar {
-    display: flex;
     align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
+    justify-content: space-between; /* RESTORED: hamburger left, active artist right */
+    position: fixed;
+    top: var(--by-banner-offset, 64px);
+    left: 0;
+    right: 0;
+    height: var(--by-topbar-h);
     z-index: 99990;
-    padding: 0.85rem 1.25rem;
+    padding: 0.65rem 1.15rem;
     background: #0e101c;
     border-bottom: 1px solid var(--by-border);
+    transition: top 0.1s ease-out;
   }
 
   .mobile-hamburger-btn {
+    position: static;
     display: flex;
     align-items: center;
-    gap: 0.55rem;
+    gap: 0.5rem;
     background: rgba(0, 163, 255, 0.15);
     border: 1.5px solid var(--by-blue);
     color: #FFFFFF;
-    padding: 0.55rem 1.1rem;
+    padding: 0.5rem 0.95rem;
     border-radius: 9px;
     font-family: inherit;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 800;
     cursor: pointer;
+    flex-shrink: 0;
   }
 
-  /* Active artist badge on top bar with round icon & Russo One font */
+  /* Active artist badge aligned on the right */
   .mobile-active-artist-wrap {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    justify-content: flex-end;
+    gap: 0.65rem;
+    min-width: 0;
+    max-width: 60%;
   }
 
+  /* Icon slightly bigger on mobile */
   .mobile-active-avatar {
-    width: 36px;
-    height: 36px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #000000;
@@ -484,29 +648,36 @@ body {
     flex-shrink: 0;
   }
 
+  /* Name shrunk by ~20% on mobile + black outline, NO shadow */
   .mobile-active-artist-label {
     font-family: 'Russo One', sans-serif;
     color: var(--by-yellow);
-    font-size: 1.2rem;
+    font-size: 0.95rem;
     letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-text-stroke: 1px #000000;
+    text-shadow: none !important;
   }
 
-  /* Slide-out Drawer Sidebar for Mobile */
+  /* Slide-out Drawer Sidebar for Mobile: Lifted to the very top, NO empty bar */
   .booyah-sidebar {
     position: fixed;
-    top: 0;
+    top: calc(var(--by-banner-offset, 64px) + var(--by-topbar-h));
     left: 0;
     width: min(85vw, 320px);
-    height: 100vh;
+    height: calc(100vh - (var(--by-banner-offset, 64px) + var(--by-topbar-h)));
     background: #0e101c !important;
     border-right: 2px solid rgba(0, 163, 255, 0.3);
     box-shadow: none !important;
     transform: translateX(-100%);
-    z-index: 999999 !important;
+    z-index: 999998;
     display: flex !important;
     visibility: hidden;
     pointer-events: none;
-    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.3s;
+    padding-top: 1rem !important; /* LIFTED UP: starts immediately with artists */
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.3s, top 0.1s ease-out, height 0.1s ease-out;
   }
 
   .booyah-sidebar.open {
@@ -518,36 +689,42 @@ body {
 
   .sidebar-backdrop {
     display: block;
+    top: var(--by-banner-offset, 64px);
   }
 
-  .sidebar-close-btn {
-    display: flex;
+  /* Centered artist banner on mobile with large title and black outline */
+  .section-artist-banner {
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    padding-bottom: 1.1rem;
-    margin-bottom: 0.85rem;
-    border-bottom: 1px solid var(--by-border);
-    font-family: 'Russo One', sans-serif;
-    color: var(--by-yellow);
-    font-size: 1.15rem;
-    letter-spacing: 0.5px;
+    justify-content: center;
+    text-align: center;
+    gap: 0.85rem;
   }
 
-  .sidebar-close-x {
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid var(--by-border);
-    color: #FFFFFF;
-    font-size: 1.4rem;
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    cursor: pointer;
+  .section-artist-avatar {
+    width: 105px;
+    height: 105px;
+  }
+
+  .section-artist-details {
     display: flex;
+    flex-direction: column;
     align-items: center;
+    text-align: center;
+  }
+
+  .section-artist-details h3 {
+    font-size: clamp(2.4rem, 8vw, 3.8rem); /* Big on mobile too, ~15% smaller than avatar */
+    -webkit-text-stroke: 2px #000000;
+    text-shadow: none !important;
+  }
+
+  .volume-heading {
     justify-content: center;
   }
 
   .booyah-main-wall {
+    margin-left: 0;
     padding: 1rem 0.75rem 4rem;
   }
 
