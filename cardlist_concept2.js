@@ -40,6 +40,7 @@
 
   var allCards = [];
   var currentCardIdx = 0;
+  var artistLoadStatus = {};
 
   function pad(n) {
     return n < 10 ? "0" + n : "" + n;
@@ -49,7 +50,77 @@
     return "sec-" + name.replace(/[^a-zA-Z0-9]/g, "");
   }
 
+  function getArtistHash(artist) {
+    if (!artist || !artist.profileUrl) return "#";
+    var idx = artist.profileUrl.indexOf("#");
+    return idx !== -1 ? artist.profileUrl.substring(idx) : "#" + slugify(artist.name);
+  }
+
+  // Check if current view is #cardlist; if not, hide sidebar completely!
+  function updateCardlistActiveState() {
+    var hash = (window.location.hash || "").toLowerCase();
+    var cardlistSection = document.getElementById("cardlist-section");
+
+    var isCardlist = false;
+    if (cardlistSection) {
+      var isHidden = cardlistSection.style.display === "none" || cardlistSection.classList.contains("inactive");
+      var isExplicitActive = cardlistSection.classList.contains("active");
+      isCardlist = (!isHidden && isExplicitActive) || hash === "#cardlist";
+    } else {
+      isCardlist = hash === "#cardlist" || hash === "" || hash.indexOf("cardlist") !== -1;
+    }
+
+    if (isCardlist) {
+      document.body.classList.add("booyah-cardlist-active");
+      updateBannerOffset();
+    } else {
+      document.body.classList.remove("booyah-cardlist-active");
+      closeMobileSidebar();
+    }
+  }
+
+  // Dynamically calculate and position elements below the main website header
+  function updateBannerOffset() {
+    var header = document.getElementById("booyah-header");
+    var offset = 64;
+    if (header) {
+      var rect = header.getBoundingClientRect();
+      offset = Math.max(0, Math.round(rect.bottom));
+    } else {
+      var scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+      offset = Math.max(0, 64 - scrollY);
+    }
+    document.documentElement.style.setProperty("--by-banner-offset", offset + "px");
+  }
+
+  // Smoothly auto-scroll the left sidebar list as active artists progress
+  function scrollNavIntoView(activeItem) {
+    var list = document.getElementById("booyahArtistNavList");
+    if (!list || !activeItem) return;
+    var listRect = list.getBoundingClientRect();
+    var itemRect = activeItem.getBoundingClientRect();
+
+    if (itemRect.bottom > listRect.bottom - 24) {
+      list.scrollBy({
+        top: itemRect.bottom - listRect.bottom + 48,
+        behavior: "smooth"
+      });
+    } else if (itemRect.top < listRect.top + 24) {
+      list.scrollBy({
+        top: itemRect.top - listRect.top - 48,
+        behavior: "smooth"
+      });
+    }
+  }
+
   function initCardWall() {
+    ["booyahSidebar", "sidebarBackdrop", "booyahInspectorModal"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) document.body.appendChild(el);
+    });
+    var topBar = document.querySelector(".mobile-top-bar");
+    if (topBar) document.body.appendChild(topBar);
+
     var sidebarList = document.getElementById("booyahArtistNavList");
     var wallSections = document.getElementById("booyahWallSections");
     if (!sidebarList || !wallSections) return;
@@ -57,6 +128,29 @@
     sidebarList.innerHTML = "";
     wallSections.innerHTML = "";
     allCards = [];
+    artistLoadStatus = {};
+
+    // Remove empty header bar in mobile drawer completely to lift everything up
+    var closeHeader = document.querySelector(".sidebar-close-btn");
+    if (closeHeader) {
+      closeHeader.remove();
+    }
+
+    // Banner offset check & listeners
+    updateBannerOffset();
+    window.addEventListener("scroll", updateBannerOffset, { passive: true });
+    window.addEventListener("resize", updateBannerOffset, { passive: true });
+
+    // Active state tracker (Hides sidebar immediately when navigating away to any profile or page)
+    updateCardlistActiveState();
+    window.addEventListener("hashchange", updateCardlistActiveState);
+    window.addEventListener("popstate", updateCardlistActiveState);
+
+    var cardlistSection = document.getElementById("cardlist-section");
+    if (cardlistSection && window.MutationObserver) {
+      var observer = new MutationObserver(updateCardlistActiveState);
+      observer.observe(cardlistSection, { attributes: true, attributeFilter: ["class", "style"] });
+    }
 
     // Set initial mobile active artist avatar & name
     updateMobileActiveHeader(ARTISTS[0]);
@@ -64,8 +158,9 @@
     ARTISTS.forEach(function (artist, index) {
       var totalCards = artist.volumes ? artist.volumes.reduce(function (sum, v) { return sum + (v.n || 0); }, 0) : 0;
       var secId = slugify(artist.name);
+      var profileHash = getArtistHash(artist);
 
-      // 1. Sidebar Nav Item (With Card Count & Urbanist font on left sidebar)
+      // 1. Sidebar Nav Item
       var navBtn = document.createElement("button");
       navBtn.className = "artist-nav-item" + (index === 0 ? " active" : "");
       navBtn.setAttribute("data-target", secId);
@@ -79,6 +174,7 @@
         '</div>';
 
       navBtn.addEventListener("click", function () {
+        loadArtistGradual(artist);
         var targetSection = document.getElementById(secId);
         if (targetSection) {
           targetSection.scrollIntoView({ behavior: "smooth" });
@@ -88,27 +184,51 @@
       });
       sidebarList.appendChild(navBtn);
 
-      // 2. Card Wall Section (Russo One font for artist heading)
+      // 2. Card Wall Section with HUGE Clickable Artist Name (Profile Link) & Glowing Loader
       var section = document.createElement("section");
       section.className = "booyah-artist-section";
       section.id = secId;
+      section.setAttribute("data-artist-name", artist.name);
 
       section.innerHTML =
         '<div class="section-artist-banner">' +
-          '<img class="section-artist-avatar" src="' + (ICON_BASE + artist.icon) + '" alt="' + artist.name + '">' +
+          '<a href="' + profileHash + '" class="section-artist-avatar-link" title="View ' + artist.name + ' profile">' +
+            '<img class="section-artist-avatar" src="' + (ICON_BASE + artist.icon) + '" alt="' + artist.name + '">' +
+          '</a>' +
           '<div class="section-artist-details">' +
-            '<h3>' + artist.name + '</h3>' +
-            '<a href="' + artist.profileUrl + '" target="_blank" rel="noopener">View Artist Profile ↗</a>' +
+            '<a href="' + profileHash + '" class="section-artist-name-link" title="View ' + artist.name + ' profile">' +
+              '<h3>' + artist.name + '</h3>' +
+            '</a>' +
           '</div>' +
-        '</div>';
+        '</div>' +
+        '<div class="artist-loader" id="loader-' + secId + '">' +
+          '<div class="artist-loader-inner">' +
+            '<img class="artist-loader-logo" src="' + (ICON_BASE + 'BooyahLogo2.png') + '" alt="Booyah! Logo">' +
+            '<span class="artist-loader-text">Loading...</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="artist-cards-container is-loading" id="cards-' + secId + '"></div>';
 
-      // Volumes & Raw Cards
+      // Immediately hide sidebar if artist name or avatar is clicked
+      var avatarLink = section.querySelector(".section-artist-avatar-link");
+      var nameLink = section.querySelector(".section-artist-name-link");
+      [avatarLink, nameLink].forEach(function (l) {
+        if (l) {
+          l.addEventListener("click", function () {
+            document.body.classList.remove("booyah-cardlist-active");
+          });
+        }
+      });
+
+      var cardsContainer = section.querySelector("#cards-" + secId);
+
+      // Volumes & Raw Cards (use data-src so browser never fetches before preloading finishes)
       if (artist.volumes && artist.volumes.length) {
         artist.volumes.forEach(function (vol) {
           var volHeading = document.createElement("div");
           volHeading.className = "volume-heading";
           volHeading.innerHTML = '<span class="volume-pill">' + vol.label + '</span>';
-          section.appendChild(volHeading);
+          cardsContainer.appendChild(volHeading);
 
           var grid = document.createElement("div");
           grid.className = "card-wall-grid";
@@ -123,7 +243,7 @@
             cardEl.setAttribute("data-index", cardIdx);
 
             cardEl.innerHTML =
-              '<img src="' + cardUrl + '" alt="' + artist.name + ' Card #' + i + '" loading="lazy">' +
+              '<img data-src="' + cardUrl + '" alt="' + artist.name + ' Card #' + i + '">' +
               '<div class="card-shield-overlay"></div>';
 
             cardEl.addEventListener("click", (function (idx) {
@@ -137,7 +257,7 @@
 
             grid.appendChild(cardEl);
           }
-          section.appendChild(grid);
+          cardsContainer.appendChild(grid);
         });
       }
 
@@ -146,6 +266,125 @@
 
     setupScrollObserver();
     setupMobileDrawerEvents();
+    setupGradualScrollLoading();
+  }
+
+  // Gradual on-scroll loader: Loads each artist only as the user scrolls to them
+  function setupGradualScrollLoading() {
+    // 1. Immediately start loading ONLY the first artist (at the top of the page)
+    if (ARTISTS.length > 0) {
+      loadArtistGradual(ARTISTS[0]);
+    }
+
+    // 2. Observe sections and only trigger loading when scrolled towards
+    if (!('IntersectionObserver' in window)) {
+      ARTISTS.forEach(loadArtistGradual);
+      return;
+    }
+
+    var scrollLoader = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            var artistName = entry.target.getAttribute("data-artist-name");
+            var artist = ARTISTS.find(function (a) { return a.name === artistName; });
+            if (artist) loadArtistGradual(artist);
+            scrollLoader.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: "250px 0px 100px 0px", threshold: 0 }
+    );
+
+    document.querySelectorAll(".booyah-artist-section").forEach(function (sec) {
+      scrollLoader.observe(sec);
+    });
+  }
+
+  // Preloads 100% of cards for an artist, decoding them into memory before revealing
+  function loadArtistGradual(artist) {
+    if (!artist) return;
+    var secId = slugify(artist.name);
+    if (artistLoadStatus[secId]) return;
+    artistLoadStatus[secId] = "loading";
+
+    var loaderEl = document.getElementById("loader-" + secId);
+    var cardsContainer = document.getElementById("cards-" + secId);
+    if (!cardsContainer) return;
+
+    var cardImgs = cardsContainer.querySelectorAll(".booyah-card img");
+    if (cardImgs.length === 0) {
+      revealArtistCards(loaderEl, cardsContainer);
+      return;
+    }
+
+    var total = cardImgs.length;
+    var loaded = 0;
+    var isDone = false;
+
+    function finish() {
+      if (isDone) return;
+      isDone = true;
+      artistLoadStatus[secId] = "done";
+      revealArtistCards(loaderEl, cardsContainer);
+    }
+
+    // Generous fallback timeout (25s) so slower connections don't prematurely drop loader
+    var timer = setTimeout(finish, 25000);
+
+    function onCardReady() {
+      loaded++;
+      if (loaded >= total) {
+        clearTimeout(timer);
+        finish();
+      }
+    }
+
+    cardImgs.forEach(function (img) {
+      var src = img.getAttribute("data-src");
+      if (!src) {
+        onCardReady();
+        return;
+      }
+
+      var pre = new Image();
+      pre.onload = function () {
+        img.src = src;
+        img.removeAttribute("data-src");
+        if ('decode' in img) {
+          img.decode().then(onCardReady).catch(onCardReady);
+        } else {
+          onCardReady();
+        }
+      };
+      pre.onerror = function () {
+        img.src = src;
+        img.removeAttribute("data-src");
+        onCardReady();
+      };
+      pre.src = src;
+    });
+  }
+
+  // Once 100% of images are confirmed fully decoded in memory, smoothly reveal cards
+  function revealArtistCards(loaderEl, cardsContainer) {
+    if (!cardsContainer) return;
+
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        if (loaderEl) {
+          loaderEl.classList.add("fade-out");
+          setTimeout(function () {
+            loaderEl.style.display = "none";
+            cardsContainer.classList.remove("is-loading");
+            cardsContainer.classList.add("fade-in");
+          }, 220);
+        } else {
+          cardsContainer.classList.remove("is-loading");
+          cardsContainer.classList.add("fade-in");
+        }
+      });
+    });
   }
 
   function updateMobileActiveHeader(artist) {
@@ -177,7 +416,7 @@
     });
   }
 
-  // Active section spy on scroll (CLEAN - NO scrollIntoView CALLS TO PREVENT JITTER/LOCKS)
+  // Active section spy on scroll with AUTO-SCROLLING sidebar
   function setupScrollObserver() {
     var sections = document.querySelectorAll(".booyah-artist-section");
     var navItems = document.querySelectorAll(".artist-nav-item");
@@ -195,6 +434,8 @@
                 var artistName = item.getAttribute("data-name");
                 var artistIcon = item.getAttribute("data-icon");
                 updateMobileActiveHeader({ name: artistName, icon: artistIcon });
+                // Automatically scroll the sidebar list to keep the highlighted artist in view
+                scrollNavIntoView(item);
               } else {
                 item.classList.remove("active");
               }
@@ -213,19 +454,12 @@
   // Mobile Hamburger Drawer Setup
   function setupMobileDrawerEvents() {
     var btn = document.getElementById("mobileHamburgerBtn");
-    var closeBtn = document.getElementById("mobileCloseBtn");
     var backdrop = document.getElementById("sidebarBackdrop");
 
     if (btn) {
       btn.onclick = function (e) {
         if (e) e.stopPropagation();
         toggleMobileSidebar();
-      };
-    }
-    if (closeBtn) {
-      closeBtn.onclick = function (e) {
-        if (e) e.stopPropagation();
-        closeMobileSidebar();
       };
     }
     if (backdrop) {
@@ -261,7 +495,7 @@
     if (backdrop) backdrop.classList.remove("active");
   };
 
-  // Zoomed Lightbox Inspector (+20% bigger, Arrows Navigation, 3D tilt)
+  // Zoomed Lightbox Inspector
   var modal = document.getElementById("booyahInspectorModal");
   var inspectorInner = document.getElementById("booyahInspectorInner");
   var inspectorImg = document.getElementById("booyahInspectorImg");
@@ -293,6 +527,16 @@
     if (inspectorInner) inspectorInner.style.transform = "";
   }
 
+  function lockBackgroundScroll() {
+    document.documentElement.classList.add("booyah-modal-open");
+    document.body.classList.add("booyah-modal-open");
+  }
+
+  function unlockBackgroundScroll() {
+    document.documentElement.classList.remove("booyah-modal-open");
+    document.body.classList.remove("booyah-modal-open");
+  }
+
   window.openCardInspector = function (idx) {
     if (!modal || !inspectorImg) return;
     if (typeof idx === "string") {
@@ -301,12 +545,14 @@
     }
     updateInspectorCard(idx);
     modal.classList.add("open");
+    lockBackgroundScroll();
   };
 
   window.closeCardInspector = function (e) {
     if (!modal) return;
     if (!e || e.target === modal || e.target.classList.contains("inspector-close-btn")) {
       modal.classList.remove("open");
+      unlockBackgroundScroll();
     }
   };
 
