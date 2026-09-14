@@ -79,10 +79,10 @@ body.booyah-modal-open {
   display: none !important; /* Hidden by default on all other pages/profiles */
   width: var(--by-sidebar-w);
   flex-shrink: 0;
-  position: fixed;
+  position: sticky;
+  align-self: flex-start;
   top: var(--by-banner-offset, var(--by-banner-h));
-  left: max(0px, calc((100vw - var(--by-layout-max)) / 2));
-  height: calc(100vh - var(--by-banner-offset, var(--by-banner-h)));
+  max-height: calc(100vh - var(--by-banner-offset, var(--by-banner-h)));
   flex-direction: column;
   background: rgba(14, 16, 28, 0.94);
   backdrop-filter: blur(16px);
@@ -90,7 +90,7 @@ body.booyah-modal-open {
   border-right: 1px solid var(--by-border);
   z-index: 100;
   padding: 1.5rem 0.85rem;
-  transition: top 0.1s ease-out, height 0.1s ease-out;
+  transition: top 0.1s ease-out, max-height 0.1s ease-out;
 }
 
 /* Only display sidebar when inside #cardlist */
@@ -224,7 +224,6 @@ body.booyah-cardlist-active .booyah-sidebar {
    ------------------------------------------------------------- */
 .booyah-main-wall {
   flex: 1;
-  margin-left: var(--by-sidebar-w);
   padding: 1.5rem 2rem 5rem;
   min-width: 0;
 }
