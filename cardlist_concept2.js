@@ -8,7 +8,7 @@
 
   var ARTISTS = [
     { name: "Aperture Plushies", icon: "Aperture.jpg", profileUrl: "https://booyahtcg.com/#apertureplushies", volumes: [{ id: "ap", label: "Volume 1", n: 18 }] },
-    { name: "B.A",               icon: "ba.jpg",       profileUrl: "https://booyahtcg.com/#a",                volumes: [{ id: "ba", label: "Volume 1", n: 10 }] },
+    { name: "B.A",               icon: "ba.jpg",       profileUrl: "https://booyahtcg.com/#ba",                volumes: [{ id: "ba", label: "Volume 1", n: 10 }] },
     { name: "Beeps Creatures",   icon: "Beep.jpg",     profileUrl: "https://booyahtcg.com/#beeps-creatures",  volumes: [{ id: "be", label: "Volume 1", n: 10 }] },
     { name: "CORKiE",            icon: "Co.jpg",       profileUrl: "https://booyahtcg.com/#corkie",           volumes: [{ id: "co", label: "Volume 1", n: 10 }] },
     { name: "Dead Bois",         icon: "de.jpg",       profileUrl: "https://booyahtcg.com/#deadbois",         volumes: [{ id: "de", label: "Volume 1", n: 10 }] },
