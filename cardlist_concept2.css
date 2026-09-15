@@ -274,8 +274,8 @@ body.booyah-cardlist-active .booyah-sidebar {
 
 /* CLEAN BLACK BORDER */
 .section-artist-avatar {
-  width: 64px;
-  height: 64px;
+  width: 96px; /* 50% bigger than original 64px */
+  height: 96px;
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid #000000;
@@ -701,8 +701,8 @@ body.booyah-cardlist-active .booyah-sidebar {
   }
 
   .section-artist-avatar {
-    width: 72px;
-    height: 72px;
+    width: 108px; /* 50% bigger than original 72px */
+    height: 108px;
   }
 
   .section-artist-details {
