@@ -1,0 +1,756 @@
+/* =========================================================================
+   BOOYAH! TCG — CONCEPT 2 CARD WALL (CLEAN, NO SCROLL LOCKS, NO LOOPING)
+   ========================================================================= */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --by-yellow: #FFE500;
+  --by-blue: #00A3FF;
+  --by-purple: #8B5CF6;
+  --by-text: #FFFFFF;
+  --by-muted: #8E95A5;
+  --by-border: rgba(255, 255, 255, 0.12);
+  --by-sidebar-bg: #0e101c;
+  --by-sidebar-w: 290px;       /* desktop sidebar width, referenced below */
+  --by-layout-max: 1700px;     /* keep in sync with .booyah-layout max-width */
+  --by-topbar-h: 4.2rem;       /* mobile top bar height, referenced below */
+  --by-banner-h: 64px;         /* site header/banner height */
+  --by-banner-offset: 64px;    /* dynamic banner bottom offset on scroll */
+}
+
+/* Base protection & transparent background - Smooth, non-blocking scroll */
+html {
+  background: transparent !important;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: transparent !important;
+  color: var(--by-text);
+  font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+  line-height: 1.4;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Card inspector open: lock the page so only the zoomed card can be
+   interacted with (no background scroll/click leaking through). Toggled
+   by JS via document.documentElement/body.classList. */
+html.booyah-modal-open,
+body.booyah-modal-open {
+  overflow: hidden !important;
+  height: 100%;
+}
+
+.booyah-cardwall-root {
+  background: transparent;
+  width: 100%;
+  position: relative;
+}
+
+.booyah-cardwall-root img {
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  -webkit-user-drag: none !important;
+  user-drag: none !important;
+  pointer-events: none !important;
+}
+
+/* App Layout */
+.booyah-layout {
+  display: flex;
+  max-width: var(--by-layout-max);
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* -------------------------------------------------------------
+   LEFT SIDEBAR: ARTIST LIST (DESKTOP)
+   Only visible when viewing the Card Wall section (#cardlist)
+   ------------------------------------------------------------- */
+.booyah-sidebar {
+  display: none !important; /* Hidden by default on all other pages/profiles */
+  width: var(--by-sidebar-w);
+  flex-shrink: 0;
+  /* FIX: `position: sticky` + a `top` value the JS rewrites every scroll
+     frame (see updateBannerOffset() in the JS) fight each other — sticky
+     computes its own "stuck" offset internally from scroll position, so
+     a second external system also rewriting `top` mid-scroll produces an
+     unstable, seemingly random position. `fixed` makes `top` a literal,
+     direct distance from the viewport top, so the JS-driven value is
+     applied exactly as given, with no competing browser-side sticky math. */
+  position: fixed;
+  top: var(--by-banner-offset, var(--by-banner-h));
+  left: max(0px, calc((100vw - var(--by-layout-max)) / 2));
+  height: calc(100vh - var(--by-banner-offset, var(--by-banner-h)));
+  flex-direction: column;
+  background: rgba(14, 16, 28, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-right: 1px solid var(--by-border);
+  z-index: 100;
+  padding: 1.5rem 0.85rem;
+  /* NOTE: no top/height transition here on purpose — animating a value
+     that JS already recalculates every scroll tick just adds visible lag
+     on top of the fixed position, which is exactly what looked "random". */
+}
+
+/* Only display sidebar when inside #cardlist */
+body.booyah-cardlist-active .booyah-sidebar {
+  display: flex !important;
+}
+
+.sidebar-close-btn {
+  display: none !important;
+}
+
+.booyah-artist-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-right: 0.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 163, 255, 0.4) transparent;
+}
+
+.booyah-artist-list::-webkit-scrollbar {
+  width: 5px;
+}
+.booyah-artist-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 163, 255, 0.4);
+  border-radius: 4px;
+}
+
+/* Artist Item Nav Button */
+.artist-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--by-muted);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s ease, transform 0.2s ease;
+  font-family: 'Urbanist', -apple-system, sans-serif;
+}
+
+.artist-nav-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--by-text);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateX(4px);
+}
+
+.artist-nav-item.active {
+  background: linear-gradient(90deg, rgba(0, 163, 255, 0.28), rgba(255, 229, 0, 0.12));
+  border-color: var(--by-blue);
+  color: #FFFFFF;
+}
+
+/* CLEAN BLACK BORDER (NO GLOW / NO BOX-SHADOW) */
+.artist-nav-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2.5px solid #000000;
+  box-shadow: none !important;
+  flex-shrink: 0;
+}
+
+.artist-nav-item.active .artist-nav-avatar {
+  transform: scale(1.06);
+}
+
+.artist-nav-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ARTIST NAME IN SIDEBAR */
+.artist-nav-name {
+  font-weight: 800;
+  font-size: 1.12rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--by-text);
+}
+
+.artist-nav-count {
+  font-size: 0.8rem;
+  color: var(--by-muted);
+  font-weight: 600;
+  margin-top: 1px;
+}
+
+.artist-nav-item.active .artist-nav-count {
+  color: var(--by-yellow);
+}
+
+/* -------------------------------------------------------------
+   MOBILE TOP BAR & BACKDROP
+   Only visible when viewing #cardlist
+   ------------------------------------------------------------- */
+.mobile-top-bar {
+  display: none !important;
+}
+
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 3, 8, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 99998;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.sidebar-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* -------------------------------------------------------------
+   MAIN CONTENT: THE CARD WALL (5 CARDS PER ROW ON DESKTOP)
+   ------------------------------------------------------------- */
+.booyah-main-wall {
+  flex: 1;
+  /* FIX: the sidebar is now `position: fixed`, so it no longer reserves
+     space as a flex sibling. This margin reserves that space back so the
+     cards start to the right of the sidebar instead of under it. */
+  margin-left: var(--by-sidebar-w);
+  padding: 1.5rem 2rem 5rem;
+  min-width: 0;
+}
+
+/* Artist Section */
+.booyah-artist-section {
+  margin-bottom: 4rem;
+  scroll-margin-top: 5.5rem;
+}
+
+/* Whole banner (icon + name) is now one clickable link to the artist's profile */
+.section-artist-link {
+  display: block;
+  text-decoration: none !important;
+  color: inherit !important;
+  cursor: pointer;
+}
+
+.section-artist-link:hover .section-artist-avatar {
+  transform: scale(1.05);
+}
+
+.section-artist-link:hover h3 {
+  color: var(--by-yellow);
+}
+
+.section-artist-banner {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  margin-bottom: 1.25rem;
+}
+
+/* CLEAN BLACK BORDER */
+.section-artist-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #000000;
+  box-shadow: none !important;
+  flex-shrink: 0;
+  display: block;
+  transition: transform 0.2s ease;
+}
+
+.section-artist-details h3 {
+  font-family: 'Russo One', sans-serif;
+  font-size: clamp(1.68rem, 2.4vw, 2.4rem); /* 20% bigger than original */
+  line-height: 1.1;
+  color: var(--by-text);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  -webkit-text-stroke: 1.5px #000000; /* Bold black outline */
+  text-shadow: none !important;       /* Clean: no fuzzy shadow */
+  transition: color 0.2s ease;
+}
+
+.volume-heading {
+  margin: 1.5rem 0 0.85rem;
+  display: flex;
+  align-items: center;
+}
+
+/* Russo One font on Volume labels */
+.volume-pill {
+  font-family: 'Russo One', sans-serif;
+  font-size: 0.95rem;
+  color: var(--by-yellow);
+  background: rgba(255, 229, 0, 0.12);
+  border: 1px solid rgba(255, 229, 0, 0.3);
+  padding: 0.3rem 0.85rem;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.75px;
+}
+
+/* -------------------------------------------------------------
+   TINY ARTIST LOADING SCREEN (NO BACKGROUND, GLOWING LOGO + RUSSO ONE)
+   ------------------------------------------------------------- */
+.artist-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  margin: 1.5rem 0 2rem;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.artist-loader.fade-out {
+  opacity: 0;
+  transform: scale(0.97);
+  pointer-events: none;
+}
+
+.artist-loader-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem;
+  text-align: center;
+  background: transparent !important;
+}
+
+/* Glowing pulsating Booyah Logo */
+.artist-loader-logo {
+  width: 104px;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 14px rgba(0, 163, 255, 0.85)) drop-shadow(0 0 28px rgba(0, 163, 255, 0.45));
+  animation: booyah-logo-glow 2s ease-in-out infinite alternate;
+}
+
+/* "Loading..." text: Black outline, NO text shadow */
+.artist-loader-text {
+  font-family: 'Russo One', sans-serif;
+  font-size: 1.3rem;
+  color: var(--by-yellow);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  -webkit-text-stroke: 1.5px #000000;
+  text-shadow: none !important;
+  animation: booyah-text-pulse 2s ease-in-out infinite;
+}
+
+@keyframes booyah-logo-glow {
+  0% {
+    transform: scale(0.97);
+    filter: drop-shadow(0 0 8px rgba(0, 163, 255, 0.6)) drop-shadow(0 0 16px rgba(255, 229, 0, 0.3));
+  }
+  50% {
+    transform: scale(1.04);
+    filter: drop-shadow(0 0 20px rgba(0, 163, 255, 1)) drop-shadow(0 0 35px rgba(0, 163, 255, 0.65)) drop-shadow(0 0 45px rgba(255, 229, 0, 0.45));
+  }
+  100% {
+    transform: scale(0.97);
+    filter: drop-shadow(0 0 8px rgba(0, 163, 255, 0.6)) drop-shadow(0 0 16px rgba(255, 229, 0, 0.3));
+  }
+}
+
+@keyframes booyah-text-pulse {
+  0%, 100% {
+    opacity: 0.85;
+    color: var(--by-yellow);
+  }
+  50% {
+    opacity: 1;
+    color: #FFFFFF;
+  }
+}
+
+.artist-cards-container {
+  transition: opacity 0.35s ease;
+}
+
+.artist-cards-container.is-loading {
+  display: none !important;
+}
+
+.artist-cards-container.fade-in {
+  animation: booyah-cards-fade-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes booyah-cards-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* -------------------------------------------------------------
+   CARD WALL GRID (5 CARDS PER ROW ON DESKTOP, SCALED RESPONSIVE)
+   ------------------------------------------------------------- */
+.card-wall-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.booyah-card {
+  position: relative;
+  aspect-ratio: 2.5 / 3.5;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.25s ease;
+  overflow: visible;
+}
+
+.booyah-card:hover {
+  transform: translateY(-6px) scale(1.03);
+  filter: drop-shadow(0 12px 24px rgba(0, 163, 255, 0.55));
+  z-index: 10;
+}
+
+.booyah-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Protection transparent shield */
+.card-shield-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: transparent;
+}
+
+/* -------------------------------------------------------------
+   ZOOMED 3D CARD INSPECTOR WITH PREV / NEXT ARROWS
+   ------------------------------------------------------------- */
+.booyah-inspector-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 4, 10, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.booyah-inspector-modal.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.inspector-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  max-width: 95vw;
+  position: relative;
+}
+
+.inspector-card-container {
+  width: min(85vw, 440px);
+  aspect-ratio: 2.5 / 3.5;
+  perspective: 1000px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inspector-card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  filter: drop-shadow(0 25px 65px rgba(0, 163, 255, 0.6));
+  transition: transform 0.15s ease-out;
+}
+
+.inspector-card-inner img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Modal Navigation Arrows */
+.inspector-nav-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--by-border);
+  color: #FFFFFF;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.6rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.inspector-nav-btn:hover {
+  background: rgba(0, 163, 255, 0.35);
+  border-color: var(--by-blue);
+  color: var(--by-yellow);
+  transform: scale(1.15);
+  box-shadow: 0 0 20px rgba(0, 163, 255, 0.6);
+}
+
+.inspector-nav-btn:active {
+  transform: scale(0.95);
+}
+
+.inspector-close-btn {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--by-border);
+  color: white;
+  font-size: 1.8rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.inspector-close-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: scale(1.1);
+}
+
+/* -------------------------------------------------------------
+   RESPONSIVE: TABLET & MOBILE HAMBURGER DRAWER
+   ------------------------------------------------------------- */
+@media (max-width: 1200px) {
+  .card-wall-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  /* Layout accounts for the mobile top bar sitting below the main site header */
+  .booyah-layout {
+    flex-direction: column;
+    margin-top: calc(var(--by-banner-offset, 64px) + var(--by-topbar-h));
+    transition: margin-top 0.1s ease-out;
+  }
+
+  /* Mobile Top Bar: Positioned below main header; only shown when inside #cardlist */
+  body.booyah-cardlist-active .mobile-top-bar {
+    display: flex !important;
+  }
+
+  .mobile-top-bar {
+    align-items: center;
+    justify-content: space-between; /* RESTORED: hamburger left, active artist right */
+    position: fixed;
+    top: var(--by-banner-offset, 64px);
+    left: 0;
+    right: 0;
+    height: var(--by-topbar-h);
+    z-index: 99990;
+    padding: 0.65rem 1.15rem;
+    background: #0e101c;
+    border-bottom: 1px solid var(--by-border);
+    transition: top 0.1s ease-out;
+  }
+
+  .mobile-hamburger-btn {
+    position: static;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(0, 163, 255, 0.15);
+    border: 1.5px solid var(--by-blue);
+    color: #FFFFFF;
+    padding: 0.5rem 0.95rem;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 800;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* Active artist badge aligned on the right */
+  .mobile-active-artist-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.65rem;
+    min-width: 0;
+    max-width: 60%;
+  }
+
+  /* Icon slightly bigger on mobile */
+  .mobile-active-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #000000;
+    box-shadow: none !important;
+    flex-shrink: 0;
+  }
+
+  /* Name shrunk by ~20% on mobile + black outline, NO shadow */
+  .mobile-active-artist-label {
+    font-family: 'Russo One', sans-serif;
+    color: var(--by-yellow);
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-text-stroke: 1px #000000;
+    text-shadow: none !important;
+  }
+
+  /* Slide-out Drawer Sidebar for Mobile: Lifted to the very top, NO empty bar */
+  .booyah-sidebar {
+    position: fixed;
+    top: calc(var(--by-banner-offset, 64px) + var(--by-topbar-h));
+    left: 0;
+    width: min(85vw, 320px);
+    height: calc(100vh - (var(--by-banner-offset, 64px) + var(--by-topbar-h)));
+    background: #0e101c !important;
+    border-right: 2px solid rgba(0, 163, 255, 0.3);
+    box-shadow: none !important;
+    transform: translateX(-100%);
+    z-index: 999998;
+    display: flex !important;
+    visibility: hidden;
+    pointer-events: none;
+    padding-top: 1rem !important; /* LIFTED UP: starts immediately with artists */
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.3s, top 0.1s ease-out, height 0.1s ease-out;
+  }
+
+  .booyah-sidebar.open {
+    transform: translateX(0) !important;
+    box-shadow: 10px 0 40px rgba(0, 0, 0, 0.95) !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    top: var(--by-banner-offset, 64px);
+  }
+
+  /* Centered artist banner on mobile with large title and black outline */
+  .section-artist-banner {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 0.85rem;
+  }
+
+  .section-artist-avatar {
+    width: 72px;
+    height: 72px;
+  }
+
+  .section-artist-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .section-artist-details h3 {
+    font-size: clamp(1.8rem, 7.2vw, 2.64rem); /* 20% bigger than original */
+    -webkit-text-stroke: 1.5px #000000;
+    text-shadow: none !important;
+  }
+
+  .volume-heading {
+    justify-content: center;
+  }
+
+  .booyah-main-wall {
+    margin-left: 0;
+    padding: 1rem 0.75rem 4rem;
+  }
+
+  /* Scaled down cards for tablet / mobile */
+  .card-wall-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+
+  .inspector-stage {
+    gap: 0.6rem;
+  }
+
+  .inspector-card-container {
+    width: min(76vw, 360px);
+  }
+
+  .inspector-nav-btn {
+    width: 42px;
+    height: 42px;
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 540px) {
+  .card-wall-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+}
