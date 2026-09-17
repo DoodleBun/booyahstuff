@@ -57,11 +57,23 @@
 
     var isCardlist = false;
     if (cardlistSection) {
-      var isHidden = cardlistSection.style.display === "none" || cardlistSection.classList.contains("inactive");
+      var isHidden = cardlistSection.style.display === "none"
+        || cardlistSection.classList.contains("inactive")
+        || cardlistSection.classList.contains("hidden");
       var isExplicitActive = cardlistSection.classList.contains("active");
-      isCardlist = (!isHidden && isExplicitActive) || hash === "#cardlist";
+      // On mobile: trust the hash over DOM state — if the hash has moved away
+      // from #cardlist, hide immediately regardless of the section's class.
+      if (hash && hash !== "#cardlist") {
+        isCardlist = false;
+      } else {
+        isCardlist = (!isHidden && isExplicitActive) || hash === "#cardlist";
+      }
     } else {
-      isCardlist = hash === "#cardlist" || hash === "" || hash.indexOf("cardlist") !== -1;
+      // Section not found in DOM (e.g. Carrd removed it during navigation).
+      // ONLY activate when the hash explicitly says #cardlist.
+      // NOTE: Do NOT treat an empty hash as active — that was the mobile bug
+      // that kept the top bar visible after navigating away.
+      isCardlist = hash === "#cardlist" || (hash !== "" && hash.indexOf("cardlist") !== -1);
     }
 
     if (isCardlist) {
@@ -578,3 +590,4 @@
     initCardWall();
   }
 })();
+
